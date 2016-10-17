@@ -729,11 +729,17 @@ TElement::TElement(unsigned int z)
     if(z < 1) z = 1;
     if(z > 103) z = 103;
     Z = z;A = elem_A[z-1];
-    fi.resize(z);v.resize(z+1);
+
+    fi.resize(z);
+    cumFi.resize(z);
+    v.resize(z+1);
+
+    double sum = 0;
     for(int i = 0; i < z; i++)
     {
         fi[i] = elem_fi[z-1][i] / eFi;
         v[i] = 4/3.0 * M_PI * pow((i+1) / fi[i], 3.0);
+        sum += fi[i];cumFi[i] = sum;
     }
     v[z] = 0;
 }
