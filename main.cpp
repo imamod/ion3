@@ -11,7 +11,7 @@ int main()
 
     for(double lgT = 4.6; lgT >= 0.499; lgT -= 0.05)
     {
-        for(double lgV = -3; lgV <= 6.01; lgV += 0.05)
+        for(double lgV = -4; lgV <= 6.01; lgV += 0.05)
         {
             SahaPoint res = c.Calculate_lgTeV_lgVae(lgT,lgV);
             //printf("lgT = %g lgV = %g xe = %g P = %g E = %g Mu = %g\n",lgT, lgV, res.Xe,pow(10,res.lgP), pow(10,res.lgE), res.M);
