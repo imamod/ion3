@@ -1,7 +1,9 @@
 #include "elements.h"
 #include "atom_ed.h"
 #include <memory.h>
-#include <cmath>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 namespace
 {
@@ -735,7 +737,7 @@ TElement::TElement(unsigned int z)
     v.resize(z+1);
 
     double sum = 0;
-    for(int i = 0; i < z; i++)
+    for(unsigned int i = 0; i < z; i++)
     {
         fi[i] = elem_fi[z-1][i] / eFi;
         v[i] = 4/3.0 * M_PI * pow((i+1) / fi[i], 3.0);

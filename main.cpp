@@ -1,7 +1,7 @@
 #include <cstdio>
 #include "src/elements.h"
 #include "src/sahasolver.h"
-#include <cmath>
+#include <math.h>
 
 int main()
 {
@@ -15,7 +15,7 @@ int main()
         {
             SahaPoint res = c.Calculate_lgTeV_lgVae(lgT,lgV);
             //printf("lgT = %g lgV = %g xe = %g P = %g E = %g Mu = %g\n",lgT, lgV, res.Xe,pow(10,res.lgP), pow(10,res.lgE), res.M);
-            printf("%.3f ",res.lgS);
+            printf("%.3f ",res.Xe);
         }
         printf("\n");
     }

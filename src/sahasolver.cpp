@@ -3,7 +3,7 @@
 #include "atom_ed.h"
 
 #define _USE_MATH_DEFINES
-#include <cmath>
+#include <math.h>
 #include <limits>
 #include <cstdio>
 
@@ -15,7 +15,7 @@ SahaSolver::SahaSolver(const TElement &element):_element(element), _xe(0)
 
 SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 {
-    double a = -746, b = log(_element.Z), c;
+    double a = -746, b = log(double(_element.Z)), c;
     double fa, fb, fc;
     fa = ff(exp(a), T, V);
     fb = ff(exp(b), T, V);
@@ -67,7 +67,7 @@ double SahaSolver::ff(double xe, double T, double V)
     formH0(mu(T, vFree, _xe), p(T,vFree), T, maxH0);
 
     double expTemp1, Asum = 0, Bsum = 0;
-    for(int i = 0; i <= _element.Z; i++)
+    for(unsigned int i = 0; i <= _element.Z; i++)
     {
         expTemp1 = exp(_H0[i] - maxH0);
         Asum += i * expTemp1;
@@ -81,7 +81,7 @@ double SahaSolver::ff(double xe, double T, double V)
 void SahaSolver::formH0(double mu, double P, double T, double &maxH0)
 {
     _H0[0] = 0;
-    for(int i = 1; i <= _element.Z; i++)
+    for(unsigned int i = 1; i <= _element.Z; i++)
     {
         _H0[i] =  (-_element.fi[i-1] - mu - P * (_element.v[i] - _element.v[i-1])) / T;
     }
@@ -89,7 +89,7 @@ void SahaSolver::formH0(double mu, double P, double T, double &maxH0)
 
     double sum = 0;
     maxH0 = 0;
-    for(int i = 0; i <= _element.Z; i++)
+    for(unsigned int i = 0; i <= _element.Z; i++)
     {
         sum += _H0[i];_H0[i] = sum;
         if(sum > maxH0) maxH0 = sum;
@@ -102,14 +102,14 @@ void SahaSolver::formX(double T, double V)
     formH0(mu(T, vFree, _xe), p(T,vFree), T, maxH0);
 
     double expSum = 0;
-    for(int i = 0; i <= _element.Z; i++)
+    for(unsigned int i = 0; i <= _element.Z; i++)
     {
         expSum += exp(_H0[i] - maxH0);
     }
 
     double logX0 = -log(expSum) - maxH0;
 
-    for(int i = 0; i <= _element.Z; i++)
+    for(unsigned int i = 0; i <= _element.Z; i++)
     {
         _x[i] = exp(logX0 + _H0[i]);
     }
@@ -117,7 +117,7 @@ void SahaSolver::formX(double T, double V)
 
 double SahaSolver::Vfree(double V)
 {
-    int i = floor(_xe);
+    unsigned int i = floor(_xe);
     double fracXe = _xe - i;
     if(i < _element.Z)
     {
@@ -128,7 +128,7 @@ double SahaSolver::Vfree(double V)
 
 double SahaSolver::p(double T, double vFree)
 {
-    return 2*sqrt(2)/(3*M_PI*M_PI)*pow(T,2.5)*I15mu_d_t(T,vFree,_xe)+T/vFree;
+    return 2*sqrt(2.0)/(3*M_PI*M_PI)*pow(T,2.5)*I15mu_d_t(T,vFree,_xe)+T/vFree;
 }
 
 double SahaSolver::s(double T, double vFree)
@@ -137,7 +137,7 @@ double SahaSolver::s(double T, double vFree)
 
      const double M = 1822.887 * _element.A;
      double Si = 2.5;
-     for (int i = 0; i <= _element.Z; i++)
+     for (unsigned int i = 0; i <= _element.Z; i++)
      {
         if (_x[i] > 0)
         {
@@ -149,10 +149,10 @@ double SahaSolver::s(double T, double vFree)
 
 double SahaSolver::e(double T, double vFree)
 {
-    double Ee = sqrt(2)/(M_PI*M_PI)*pow(T,2.5)*vFree*I15mu_d_t(T,vFree,_xe);
+    double Ee = sqrt(2.0)/(M_PI*M_PI)*pow(T,2.5)*vFree*I15mu_d_t(T,vFree,_xe);
 
     double Efi = 0;
-    for(int i = 1; i <= _element.Z; i++)
+    for(unsigned int i = 1; i <= _element.Z; i++)
     {
         Efi += _element.cumFi[i-1] * _x[i];
     }
