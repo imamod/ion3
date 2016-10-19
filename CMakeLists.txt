@@ -36,12 +36,13 @@ set(SOURCES_LIST ${SOURCES_LIST}
 
 # get all needble libraries ===================================================
 
-#find_package()
+# find_package(quadmath)
 
 set(INCLUDE_LIST
 )
 
 set(LIBRARY_LIST
+#    quadmath
 )
 
 # create & link target ========================================================
@@ -55,6 +56,7 @@ target_compile_definitions(${TARGET_NAME} PUBLIC
 
 # setup compilation options ===================================================
 set (COMMON_COMPILE_OPTIONS
+#          -std=gnu++11
           -std=c++11
           -fopenmp
           -Wno-deprecated-declarations
