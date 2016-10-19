@@ -44,6 +44,7 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     result.lgV = log10(V);
     result.lgE = log10(e(T,vFree));
     result.lgP = log10(p(T,vFree));
+    result.lgS = log10(s(T,vFree));
     result.Xe = _xe;
     result.M = mu(T, vFree, _xe);
     result.lgKappa = log10(1-vFree/V);
@@ -128,6 +129,22 @@ double SahaSolver::Vfree(double V)
 double SahaSolver::p(double T, double vFree)
 {
     return 2*sqrt(2)/(3*M_PI*M_PI)*pow(T,2.5)*I15mu_d_t(T,vFree,_xe)+T/vFree;
+}
+
+double SahaSolver::s(double T, double vFree)
+{
+     double Se = sqrt(2.0) / (M_PI*M_PI) * pow(T, 1.5) * vFree * (5.0 / 3.0 * I15mu_d_t(T, vFree, _xe) - mu(T,vFree,_xe) / T * I05mu_d_t(T, vFree, _xe));
+
+     const double M = 1822.887 * _element.A;
+     double Si = 2.5;
+     for (int i = 0; i <= _element.Z; i++)
+     {
+        if (_x[i] > 0)
+        {
+           Si += _x[i] * (log(vFree) - log(_x[i]) + 1.5 * log(M * T / 2.0 / M_PI));
+        }
+     }
+     return Si + Se;
 }
 
 double SahaSolver::e(double T, double vFree)

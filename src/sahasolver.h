@@ -33,6 +33,7 @@ private:
     double Vfree(double V);
     double e(double T, double vFree);
     double p(double T, double vFree);
+    double s(double T, double vFree);
     void formX(double T, double V);
     const TElement &_element;
     std::vector<double> _x;
