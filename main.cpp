@@ -7,7 +7,6 @@ int main()
 {
     SahaSolver c(elements::Cu);
     //TElement elem(29);
-    //SahaSolver c(elem);
 
     for(double lgT = 4.6; lgT >= 0.499; lgT -= 0.05)
     {
