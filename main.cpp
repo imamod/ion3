@@ -15,7 +15,7 @@ int main()
         {
             SahaPoint res = c.Calculate_lgTeV_lgVae(lgT,lgV);
             //printf("lgT = %g lgV = %g xe = %g P = %g E = %g Mu = %g\n",lgT, lgV, res.Xe,pow(10,res.lgP), pow(10,res.lgE), res.M);
-            printf("%.3f ",res.Xe);
+            printf("%g ",res.F);
         }
         printf("\n");
     }

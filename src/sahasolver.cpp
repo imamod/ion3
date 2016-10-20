@@ -39,14 +39,19 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 
     double vFree = Vfree(V);
     SahaPoint result;
+    double E = e(T,vFree);
+    double S = s(T,vFree);
+    double P = p(T,vFree);
+
     result.Z = _element.Z;
     result.lgT = log10(T);
     result.lgV = log10(V);
-    result.lgE = log10(e(T,vFree));
-    result.lgP = log10(p(T,vFree));
-    result.lgS = log10(s(T,vFree));
+    result.lgE = log10(E);
+    result.lgP = log10(P);
+    result.lgS = log10(S);
     result.Xe = _xe;
     result.M = mu(T, vFree, _xe);
+    result.F = E - T * S;
     result.lgKappa = log10(1-vFree/V);
 
     return result;
@@ -128,28 +133,33 @@ double SahaSolver::Vfree(double V)
 
 double SahaSolver::p(double T, double vFree)
 {
-    return 2*sqrt(2.0)/(3*M_PI*M_PI)*pow(T,2.5)*I15mu_d_t(T,vFree,_xe)+T/vFree;
+    return 2*sqrt(2.0)/(3*M_PI*M_PI) * pow(T,2.5) * I15mu_d_t(T,vFree,_xe) + T / vFree;
 }
 
 double SahaSolver::s(double T, double vFree)
 {
-     double Se = sqrt(2.0) / (M_PI*M_PI) * pow(T, 1.5) * vFree * (5.0 / 3.0 * I15mu_d_t(T, vFree, _xe) - mu(T,vFree,_xe) / T * I05mu_d_t(T, vFree, _xe));
+    double Se = 0;
+    if(_xe > 0)
+    {
+        Se = sqrt(2.0) / (M_PI*M_PI) * pow(T, 1.5) * vFree * (5.0 / 3.0 * I15mu_d_t(T, vFree, _xe) - mu(T,vFree,_xe) / T * I05mu_d_t(T, vFree, _xe));
+    }
 
-     const double M = 1822.887 * _element.A;
-     double Si = 2.5;
-     for (unsigned int i = 0; i <= _element.Z; i++)
-     {
-        if (_x[i] > 0)
-        {
-           Si += _x[i] * (log(vFree) - log(_x[i]) + 1.5 * log(M * T / 2.0 / M_PI));
-        }
-     }
-     return Si + Se;
+    const double M = 1822.887 * _element.A;
+    double Si = 2.5, logG = log(2.0);
+    for (unsigned int i = 0; i <= _element.Z; i++)
+    {
+       if (_x[i] > 0)
+       {
+          if(i == _element.Z) logG = 0;
+          Si += _x[i] * (logG + log(vFree) - log(_x[i]) + 1.5 * log(M * T / 2.0 / M_PI));
+       }
+    }
+    return Si + Se;
 }
 
 double SahaSolver::e(double T, double vFree)
 {
-    double Ee = sqrt(2.0)/(M_PI*M_PI)*pow(T,2.5)*vFree*I15mu_d_t(T,vFree,_xe);
+    double Ee = sqrt(2.0)/(M_PI*M_PI) * pow(T,2.5) * vFree * I15mu_d_t(T,vFree,_xe);
 
     double Efi = 0;
     for(unsigned int i = 1; i <= _element.Z; i++)
