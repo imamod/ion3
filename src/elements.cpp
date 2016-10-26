@@ -726,7 +726,7 @@ const double elem_A[103]=
 
 }
 
-TElement::TElement(unsigned int z)
+TElement::TElement(unsigned int z, double rCoeff)
 {
     if(z < 1) z = 1;
     if(z > 103) z = 103;
@@ -740,7 +740,7 @@ TElement::TElement(unsigned int z)
     for(unsigned int i = 0; i < z; i++)
     {
         fi[i] = elem_fi[z-1][i] / eFi;
-        v[i] = 4/3.0 * M_PI * pow((i+1) / fi[i], 3.0);
+        v[i] = 4/3.0 * M_PI * pow(rCoeff * (i+1) / fi[i], 3.0);
         sum += fi[i];cumFi[i] = sum;
     }
     v[z] = 0;

@@ -33,7 +33,7 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
             a = c;fa = fc;
         }
     }
-    while(b - a > 1e-6);
+    while(b - a > 1e-7);
     _xe = exp(0.5*(a+b));
     formX(T, V);
 

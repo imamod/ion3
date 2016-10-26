@@ -5,7 +5,7 @@
 
 struct TElement
 {
-    TElement(unsigned int z);
+    TElement(unsigned int z, double rCoeff = 1);
     unsigned int Z;//Заряд элемента
 	double A;//Атомный вес в атомных единицах массы
     std::vector<double> fi;//Массив потенциалов ионизации в а.е.
