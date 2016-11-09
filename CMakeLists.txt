@@ -58,8 +58,8 @@ target_compile_definitions(${TARGET_NAME} PUBLIC
 set (COMMON_COMPILE_OPTIONS
 #          -std=gnu++11
           -std=c++11
-          -fopenmp
-          -Wno-deprecated-declarations
+#          -fopenmp
+#          -Wno-deprecated-declarations
 )
 
 if(BUILD_TYPE MATCHES DEBUG)
