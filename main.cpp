@@ -31,6 +31,25 @@ void outputTable(std::ostream& os, std::string tableName, const std::vector<std:
     os << "];" << std::endl;
 }
 
+void CrashTest(double rCoeff, double lgVMin, double lgVMax, double lgVStep, double lgTMin, double lgTMax, double lgTStep)
+{
+	for (int Z = 1; Z <= 103; Z++)
+	{
+		const TElement elem(Z, rCoeff);
+		SahaSolver solver(elem);
+
+		printf("[%d] ",Z);
+
+		for (double lgT = lgTMax; lgT > lgTMin; lgT -= lgTStep)
+		{
+			for (double lgV = lgVMin; lgV < lgVMax; lgV += lgVStep)
+			{
+				SahaPoint res = solver.Calculate_lgTeV_lgVae(lgT, lgV);
+			}
+		}
+
+	}
+}
 
 void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, double lgVStep, double lgTMin, double lgTMax, double lgTStep, std::string filename)
 {
@@ -86,6 +105,7 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
 
 int main()
 {
-    calculator(29,0.57,-3,6.01,0.05,0.49,4.6,0.05,"../../mion2/saha_Cu.m");
+	CrashTest(0.6, -3, 6.01, 0.05, -0.51, 4.6, 0.05);
+    //calculator(13,0.6,-3,6.01,0.05,0.49,4.6,0.05,"../../mion2/saha_Al.m");
     return 0;
 }

@@ -19,22 +19,41 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     double fa, fb, fc;
     fa = ff(exp(a), T, V);
     fb = ff(exp(b), T, V);
-
-    do
-    {
-        c = 0.5*(a + b);
-        fc = ff(exp(c), T, V);
-        if(((fa <= 0) && (fc >= 0)) || ((fa >= 0) && (fc <= 0)))
-        {
-            b = c;fb = fc;
-        }
-        else if(((fb <= 0) && (fc >= 0)) || ((fb >= 0) && (fc <= 0)))
-        {
-            a = c;fa = fc;
-        }
-    }
-    while(b - a > 1e-7);
-    _xe = exp(0.5*(a+b));
+	if(((fa >= 0) && (fb >= 0)) || ((fa <= 0) && (fb <= 0)))
+	{
+		if (fabs(fa) < fabs(fb))
+		{
+			printf("ERROR A: z=%d T=%g V=%g\n", _element.Z, T, V);
+			_xe = exp(a);
+		}
+		else
+		{
+			_xe = exp(b);
+		}
+	}
+	else
+	{
+		do
+		{
+			c = 0.5*(a + b);
+			fc = ff(exp(c), T, V);
+			if (((fa <= 0) && (fc >= 0)) || ((fa >= 0) && (fc <= 0)))
+			{
+				b = c; fb = fc;
+			}
+			else if (((fb <= 0) && (fc >= 0)) || ((fb >= 0) && (fc <= 0)))
+			{
+				a = c; fa = fc;
+			}
+			else
+			{
+				printf("ERROR: z=%d T=%g V=%g [%g %g %g : %g %g %g]\n", _element.Z, T, V, a, b, c, fa, fb, fc);
+				break;
+			}
+		} 
+		while (b - a > 1e-7);
+		_xe = exp(0.5*(a + b));
+	}
     formX(T, V);
 
     double vFree = Vfree(V);
@@ -66,7 +85,10 @@ double SahaSolver::ff(double xe, double T, double V)
 {
     _xe = xe;
     double vFree = Vfree(V);
-    if(vFree < 0) return std::numeric_limits<double>::max();
+	if (vFree < 0)
+	{
+		return std::numeric_limits<double>::max();
+	}
 
     double maxH0;
     formH0(mu(T, vFree, _xe), p(T,vFree), T, maxH0);
@@ -79,6 +101,13 @@ double SahaSolver::ff(double xe, double T, double V)
         Bsum += expTemp1;
     }
 
+	/*if (isnan(Bsum))
+	{
+		printf("%g %g %g %g {", Asum, Bsum, xe, vFree);
+		for (unsigned int i = 0; i <= _element.Z; i++) printf("%g ",_H0[i]);
+		printf("}\n");
+	}*/
+
     return Asum / Bsum - xe;
 
 }
@@ -90,7 +119,7 @@ void SahaSolver::formH0(double mu, double P, double T, double &maxH0)
     {
         _H0[i] =  (-_element.fi[i-1] - mu - P * (_element.v[i] - _element.v[i-1])) / T;
     }
-    _H0[_element.Z] -= log(2.0);
+	_H0[_element.Z] -= log(2.0);
 
     double sum = 0;
     maxH0 = 0;
