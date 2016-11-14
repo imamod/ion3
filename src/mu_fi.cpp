@@ -1,5 +1,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <cstdio>
+#include <algorithm>
 //Вычисление функций Ферми-Дирака и химического потенциала
 //Формулы взяты из диссертации Кузьминой стр.41,52-55
 //и препринта "Ионизационное равновесие с учетом вырождения"
@@ -57,8 +59,11 @@ double bbt[2]=
 	0.41356686E+2
 };
 
+const double invI05argmin = 1e-161;
+
 double ComKsi1(double Y) //Переработанная функция из диссертации Павлова
 {
+	Y = std::max(invI05argmin, Y);
 	return log(4*Y*Y*(1+a[0]*pow(Y,2)+a[1]*pow(Y,4)+
 		+a[2]*pow(Y,6)+a[3]*pow(Y,8)+a[4]*pow(Y,10))/(3.*pow(M_PI,0.5)*(1+b1*Y*Y)));
 }
@@ -125,6 +130,5 @@ double I15mu_d_t(double t,double V,double xe)
 //xe - степень ионизации
 double mu(double t,double V,double xe)
 {
-	return invI05(M_PI*M_PI*xe/(sqrt(2.0)*pow(t,1.5)*V))*t;
+	return invI05(M_PI*M_PI*xe / (sqrt(2.0)*pow(t, 1.5)*V)) * t;
 }
-

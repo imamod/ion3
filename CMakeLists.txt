@@ -65,6 +65,6 @@ set (COMMON_COMPILE_OPTIONS
 if(BUILD_TYPE MATCHES DEBUG)
     target_compile_options(${TARGET_NAME} PUBLIC -g3 ${COMMON_COMPILE_OPTIONS})
 elseif(BUILD_TYPE MATCHES RELEASE)
-    target_compile_options(${TARGET_NAME} PUBLIC -O2 ${COMMON_COMPILE_OPTIONS})
+    target_compile_options(${TARGET_NAME} PUBLIC -O3 ${COMMON_COMPILE_OPTIONS})
 endif()
 

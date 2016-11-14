@@ -21,15 +21,8 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     fb = ff(exp(b), T, V);
 	if(((fa >= 0) && (fb >= 0)) || ((fa <= 0) && (fb <= 0)))
 	{
-		if (fabs(fa) < fabs(fb))
-		{
-			printf("ERROR A: z=%d T=%g V=%g\n", _element.Z, T, V);
-			_xe = exp(a);
-		}
-		else
-		{
-			_xe = exp(b);
-		}
+		if (fabs(fa) < fabs(fb)) _xe = exp(a);
+		else _xe = exp(b);
 	}
 	else
 	{
@@ -47,13 +40,19 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 			}
 			else
 			{
-				printf("ERROR: z=%d T=%g V=%g [%g %g %g : %g %g %g]\n", _element.Z, T, V, a, b, c, fa, fb, fc);
+				printf("FIND ROOT ERROR: z=%d lgT=%g lgV=%g [%g %g %g : %g %g %g]\n", _element.Z, log10(T) + log10(eFi), log10(V), a, b, c, fa, fb, fc);
 				break;
 			}
 		} 
 		while (b - a > 1e-7);
 		_xe = exp(0.5*(a + b));
 	}
+
+	if (!isfinite(_xe))
+	{
+		printf("INVALID Xe: %g z=%d lgT=%g lgV=%g\n",_xe, _element.Z, log10(T) + log10(eFi), log10(V));
+	}
+
     formX(T, V);
 
     double vFree = Vfree(V);
@@ -91,7 +90,7 @@ double SahaSolver::ff(double xe, double T, double V)
 	}
 
     double maxH0;
-    formH0(mu(T, vFree, _xe), p(T,vFree), T, maxH0);
+    formH0(mu(T, vFree, _xe), p(T, vFree), T, maxH0);
 
     double expTemp1, Asum = 0, Bsum = 0;
     for(unsigned int i = 0; i <= _element.Z; i++)
@@ -100,13 +99,6 @@ double SahaSolver::ff(double xe, double T, double V)
         Asum += i * expTemp1;
         Bsum += expTemp1;
     }
-
-	/*if (isnan(Bsum))
-	{
-		printf("%g %g %g %g {", Asum, Bsum, xe, vFree);
-		for (unsigned int i = 0; i <= _element.Z; i++) printf("%g ",_H0[i]);
-		printf("}\n");
-	}*/
 
     return Asum / Bsum - xe;
 
