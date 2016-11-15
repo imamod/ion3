@@ -32,7 +32,8 @@ endif()
 add_subdirectory(src)
 
 set(SOURCES_LIST ${SOURCES_LIST}
-     ${CMAKE_CURRENT_LIST_DIR}/main.cpp)
+     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/saha.cpp)
 
 # get all needble libraries ===================================================
 

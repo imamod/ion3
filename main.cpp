@@ -1,6 +1,7 @@
 #include "src/elements.h"
 #include "src/sahasolver.h"
 #include "src/atom_ed.h"
+#include "saha.h"
 #include <math.h>
 
 #include <cstdio>
@@ -83,8 +84,8 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
         {
             SahaPoint res = solver.Calculate_lgTeV_lgVae(lgT,lgV);
             ionizationLine.push_back(res.Xe);
-            pLine.push_back(pow(10,res.lgP));
-            eLine.push_back(pow(10,res.lgE));
+            pLine.push_back(res.P);
+            eLine.push_back(res.E);
         }
         ionizationTable.push_back(ionizationLine);
         pTable.push_back(pLine);
@@ -107,5 +108,20 @@ int main()
 {
     //CrashTest(0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05);
     calculator(82,0.6,-3,6.01,0.05,0.49,4.6,0.05,"../../mion2/saha_Pb.m");
+
+	saha::Point ppp;
+	try
+	{
+		ppp = saha::Calculate(26, 1.5, 2);
+		printf("\n%d %g %g\n", ppp.Z, ppp.P, ppp.lgKappa);
+
+		ppp = saha::Calculate(26, 1.5, 2.5);
+		printf("%d %g %g\n", ppp.Z, ppp.P, ppp.lgKappa);
+	}
+	catch (std::exception& r)
+	{
+		printf("Exception thrown:  %s", r.what());
+	}
+	
     return 0;
 }

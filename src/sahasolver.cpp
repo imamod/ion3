@@ -62,15 +62,15 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     double P = p(T,vFree);
 
     result.Z = _element.Z;
-    result.lgT = log10(T);
-    result.lgV = log10(V);
-    result.lgE = log10(E);
-    result.lgP = log10(P);
-    result.lgS = log10(S);
+    result.T = T;
+    result.V = V;
+    result.E = E;
+    result.P = P;
+    result.S = S;
     result.Xe = _xe;
     result.M = mu(T, vFree, _xe);
     result.F = E - T * S;
-    result.lgKappa = log10(1-vFree/V);
+    result.K = 1 - vFree / V;
 
     return result;
 }
