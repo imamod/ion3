@@ -26,11 +26,13 @@ public:
     SahaPoint Calculate_TVae(double T, double V);
     SahaPoint Calculate_lgTeV_lgVae(double lgT, double lgV);
     void GetX(std::vector<double> &x);
+	double Vion(double rCoeff);
 
 private:
     void formH0(double mu, double P, double T, double &maxH0);
     double ff(double xe, double T, double V);
     double Vfree(double V);
+
     double e(double T, double vFree);
     double p(double T, double vFree);
     double s(double T, double vFree);

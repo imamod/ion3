@@ -6,6 +6,7 @@
 #include <math.h>
 #include <limits>
 #include <cstdio>
+#include <stdexcept>
 
 SahaSolver::SahaSolver(const TElement &element):_element(element), _xe(0)
 {
@@ -40,7 +41,9 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 			}
 			else
 			{
-				printf("FIND ROOT ERROR: z=%d lgT=%g lgV=%g [%g %g %g : %g %g %g]\n", _element.Z, log10(T) + log10(eFi), log10(V), a, b, c, fa, fb, fc);
+				char message[256];
+				sprintf(message, "FIND ROOT ERROR: z=%d lgT=%g lgV=%g [%g %g %g : %g %g %g]\n", _element.Z, log10(T) + log10(eFi), log10(V), a, b, c, fa, fb, fc);
+				throw std::runtime_error(message);
 				break;
 			}
 		} 
@@ -50,7 +53,9 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 
 	if (!isfinite(_xe))
 	{
-		printf("INVALID Xe: %g z=%d lgT=%g lgV=%g\n",_xe, _element.Z, log10(T) + log10(eFi), log10(V));
+		char message[256];
+		sprintf(message, "INVALID Xe: %g z=%d lgT=%g lgV=%g\n",_xe, _element.Z, log10(T) + log10(eFi), log10(V));
+		throw std::runtime_error(message);
 	}
 
     formX(T, V);
@@ -150,6 +155,17 @@ double SahaSolver::Vfree(double V)
         return V - (_element.v[i] * (1-fracXe) + _element.v[i+1] * fracXe);
     }
     return V - _element.v[_element.Z];
+}
+
+double SahaSolver::Vion(double rCoeff)
+{
+	double V = 0;
+	for (int i = 0; i < _element.Z; i++)
+	{
+		double vi = 4 / 3.0 * M_PI * pow(rCoeff * (i + 1) / _element.fi[i], 3.0);
+		V += _x[i] * vi;
+	}
+	return V;
 }
 
 double SahaSolver::p(double T, double vFree)

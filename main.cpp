@@ -105,14 +105,15 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
 }
 
 int main()
-{
-    //CrashTest(0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05);
-    calculator(82,0.6,-3,6.01,0.05,0.49,4.6,0.05,"../../mion2/saha_Pb.m");
-
-	saha::Point ppp;
+{	
 	try
 	{
+		//CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
+		calculator(82, 0.6, -3, 6.01, 0.05, 0.49, 4.6, 0.05, "../../mion2/saha_Pb.m");
+
+		saha::Point ppp;
 		ppp = saha::Calculate(26, 1.5, 2);
+
 		printf("\n%d %g %g\n", ppp.Z, ppp.P, ppp.lgKappa);
 
 		ppp = saha::Calculate(26, 1.5, 2.5);

@@ -10,8 +10,9 @@ namespace saha
 	namespace
 	{
 		const unsigned int c_maxZ = 103;
+		//const double ionRadiusCoeff = 0; //Нулевое значение - режим совместимости со старой Сахой
 		const double ionRadiusCoeff = 0.6;
-
+	
 		std::shared_ptr<TElement> elem;
 		std::shared_ptr<SahaSolver> solver;
 	   
@@ -38,7 +39,12 @@ namespace saha
 				}
 			}
 
-			return solver->Calculate_TVae(pow(10.0, i_lgT), pow(10.0, i_lgV));
+			SahaPoint result = solver->Calculate_TVae(pow(10.0, i_lgT), pow(10.0, i_lgV));
+
+			//В режиме совместимости с обычной Сахой считаем K по-старому
+			if (ionRadiusCoeff == 0) result.K = solver->Vion(1.0) / pow(10.0, i_lgV);
+
+			return result;
       }
    }
 
