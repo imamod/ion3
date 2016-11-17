@@ -109,7 +109,7 @@ int main()
 	try
 	{
 		//CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
-		calculator(82, 0.6, -3, 6.01, 0.05, 0.49, 4.6, 0.05, "../../mion2/saha_Pb.m");
+		calculator(82, 0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05, "../../mion2/saha_Pb.m");
 
 		saha::Point ppp;
 		ppp = saha::Calculate(26, 1.5, 2);
@@ -121,7 +121,7 @@ int main()
 	}
 	catch (std::exception& r)
 	{
-		printf("Exception thrown:  %s", r.what());
+		printf("\n%s", r.what());
 	}
 	
     return 0;

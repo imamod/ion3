@@ -3,6 +3,7 @@
 
 #include "elements.h"
 #include <vector>
+#include <string>
 
 struct SahaPoint
 {
@@ -28,7 +29,8 @@ public:
     void GetX(std::vector<double> &x);
 	double Vion(double rCoeff);
 
-private:
+private:	
+	void error(const std::string & errorType, const std::string & message, double T, double V);
     void formH0(double mu, double P, double T, double &maxH0);
     double ff(double xe, double T, double V);
     double Vfree(double V);

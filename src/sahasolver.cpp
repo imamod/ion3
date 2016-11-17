@@ -42,9 +42,9 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 			else
 			{
 				char message[256];
-				sprintf(message, "FIND ROOT ERROR: z=%d lgT=%g lgV=%g [%g %g %g : %g %g %g]\n", _element.Z, log10(T) + log10(eFi), log10(V), a, b, c, fa, fb, fc);
-				throw std::runtime_error(message);
-				break;
+				sprintf(message, "ln(a) = %g ln(b) = %g ln(c) = %g fa = %g fb = %g fc = %g\n", a, b, c, fa, fb, fc);
+				error("find root error", message, T, V);
+				
 			}
 		} 
 		while (b - a > 1e-7);
@@ -54,8 +54,8 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 	if (!isfinite(_xe))
 	{
 		char message[256];
-		sprintf(message, "INVALID Xe: %g z=%d lgT=%g lgV=%g\n",_xe, _element.Z, log10(T) + log10(eFi), log10(V));
-		throw std::runtime_error(message);
+		sprintf(message, "xe=%g\n",_xe);
+		error("invalid xe", message, T, V);
 	}
 
     formX(T, V);
@@ -107,6 +107,14 @@ double SahaSolver::ff(double xe, double T, double V)
 
     return Asum / Bsum - xe;
 
+}
+
+void SahaSolver::error(const std::string & errorType, const std::string &message, double T, double V)
+{
+	char result[1024];
+	sprintf(result, "Internal Saha Error\nError type:%s\nlgT(eV) = %g lgV(a.e.) = %g Z = %d\nInfo:%s\n", 
+		errorType.c_str(), log10(T) + log10(eFi), log10(V), _element.Z, message.c_str());
+	throw std::runtime_error(result);
 }
 
 void SahaSolver::formH0(double mu, double P, double T, double &maxH0)
