@@ -109,15 +109,15 @@ int main()
 	try
 	{
 		//CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
-		calculator(82, 0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05, "../../mion2/saha_Pb.m");
+        calculator(82, 0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05, "saha_Pb.m");
 
-		saha::Point ppp;
+        /*saha::Point ppp;
 		ppp = saha::Calculate(26, 1.5, 2);
 
 		printf("\n%d %g %g\n", ppp.Z, ppp.P, ppp.lgKappa);
 
 		ppp = saha::Calculate(26, 1.5, 2.5);
-		printf("%d %g %g\n", ppp.Z, ppp.P, ppp.lgKappa);
+        printf("%d %g %g\n", ppp.Z, ppp.P, ppp.lgKappa);*/
 	}
 	catch (std::exception& r)
 	{
