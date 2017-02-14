@@ -44,9 +44,9 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 				char message[256];
 				sprintf(message, "ln(a) = %g ln(b) = %g ln(c) = %g fa = %g fb = %g fc = %g\n", a, b, c, fa, fb, fc);
 				error("find root error", message, T, V);
-				
+
 			}
-		} 
+		}
 		while (b - a > 1e-7);
 		_xe = exp(0.5*(a + b));
 	}
@@ -100,31 +100,32 @@ double SahaSolver::ff(double xe, double T, double V)
     double expTemp1, Asum = 0, Bsum = 0;
     for(unsigned int i = 0; i <= _element.Z; i++)
     {
-        expTemp1 = exp(_H0[i] - maxH0);
+        expTemp1 = exp(_H0[i] - maxH0); // что за формулы в данном цикле, что высчитываем?
         Asum += i * expTemp1;
         Bsum += expTemp1;
     }
 
-    return Asum / Bsum - xe;
+    return Asum / Bsum - xe; // похоже на формулу на стр 42, где считается хе, но почему здесь вычитаем хе
 
 }
 
 void SahaSolver::error(const std::string & errorType, const std::string &message, double T, double V)
 {
 	char result[1024];
-	sprintf(result, "Internal Saha Error\nError type:%s\nlgT(eV) = %g lgV(a.e.) = %g Z = %d\nInfo:%s\n", 
+	sprintf(result, "Internal Saha Error\nError type:%s\nlgT(eV) = %g lgV(a.e.) = %g Z = %d\nInfo:%s\n",
 		errorType.c_str(), log10(T) + log10(eFi), log10(V), _element.Z, message.c_str());
 	throw std::runtime_error(result);
 }
-
+// не понятен смысл данной функции
 void SahaSolver::formH0(double mu, double P, double T, double &maxH0)
 {
     _H0[0] = 0;
     for(unsigned int i = 1; i <= _element.Z; i++)
     {
+      // стр 2 из src/theorys
         _H0[i] =  (-_element.fi[i-1] - mu - P * (_element.v[i] - _element.v[i-1])) / T;
     }
-	_H0[_element.Z] -= log(2.0);
+	_H0[_element.Z] -= log(2.0); // Что такое H0? Это логарифм из формулы (7) на стр 2 теории? Почему вычитаем логарифм 2?
 
     double sum = 0;
     maxH0 = 0;
@@ -150,13 +151,13 @@ void SahaSolver::formX(double T, double V)
 
     for(unsigned int i = 0; i <= _element.Z; i++)
     {
-        _x[i] = exp(logX0 + _H0[i]);
+        _x[i] = exp(logX0 + _H0[i]); // что такое _x[i]?
     }
 }
 
 double SahaSolver::Vfree(double V)
 {
-    unsigned int i = floor(_xe);
+    unsigned int i = floor(_xe); // _xe - это концентрация здесь? что показывает i?
     double fracXe = _xe - i;
     if(i < _element.Z)
     {
