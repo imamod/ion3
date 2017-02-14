@@ -4,6 +4,7 @@
 #include "saha.h"
 #include <math.h>
 
+
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -105,7 +106,7 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
 }
 
 int main()
-{	
+{
 	try
 	{
 		//CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
@@ -123,6 +124,6 @@ int main()
 	{
 		printf("\n%s", r.what());
 	}
-	
+
     return 0;
 }
