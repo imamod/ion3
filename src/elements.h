@@ -2,16 +2,15 @@
 #define ELEMENTS_H
 
 #include <vector>
-// проблемы с кодировкой. Можно ли переписать комментарии?
 
 struct TElement
 {
     TElement(unsigned int z, double rCoeff = 1);
-    unsigned int Z;//����� ��������
-	double A;//������� ��� � ������� �������� �����
-    std::vector<double> fi;//������ ����������� ��������� � �.�.
-    std::vector<double> cumFi;//������������ ����� ����������� ��������� � �.�.
-    std::vector<double> v;//������ ������� ������ ������� � �.�.
+    unsigned int Z;//Заряд элемента
+	double A;//Атомный вес в атомных единицах массы
+    std::vector<double> fi;//Массив потенциалов ионизации в а.е.
+    std::vector<double> cumFi;//Кумулятивная сумма потенциалов ионизации в а.е.
+    std::vector<double> v;//Массив объемов ионных остовов в а.е.
 };
 
 namespace elements

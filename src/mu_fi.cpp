@@ -2,11 +2,11 @@
 #include <math.h>
 #include <cstdio>
 #include <algorithm>
-//���������� ������� �����-������ � ����������� ����������
-//������� ����� �� ����������� ��������� ���.41,52-55
-//� ��������� "������������� ���������� � ������ ����������"
+//Вычисление функций Ферми-Дирака и химического потенциала
+//Формулы взяты из диссертации Кузьминой стр.41,52-55
+//и препринта "Ионизационное равновесие с учетом вырождения"
 
-//����� ������������� ��� ���������� invI05
+//Набор коэффициентов для вычисления invI05
 double a[5]=
 {
     0.23960888E+0,
@@ -28,7 +28,7 @@ double b1=-0.26354443E-1;
 double beta1=0.33069903E+3;
 double beta2=0.10575554E+1;
 
-//����� ������������� ��� ���������� I15invI05
+//Набор коэффициентов для вычисления I15invI05
 double aa[5]=
 {
 	1,
@@ -61,21 +61,22 @@ double bbt[2]=
 
 const double invI05argmin = 1e-161;
 
-double ComKsi1(double Y)
+double ComKsi1(double Y) //Переработанная функция из диссертации Павлова
 {
 	Y = std::max(invI05argmin, Y);
 	return log(4*Y*Y*(1+a[0]*pow(Y,2)+a[1]*pow(Y,4)+
 		+a[2]*pow(Y,6)+a[3]*pow(Y,8)+a[4]*pow(Y,10))/(3.*pow(M_PI,0.5)*(1+b1*Y*Y)));
 }
 
-double ComKsi2(double Y)
+double ComKsi2(double Y) //Переработанная функция из диссертации Павлова
 {
-  	return pow( ( (alpha[0] + alpha[1]*pow(Y,(8./3.)) +alpha[2]*pow(Y,(16./3.))+
+  	return pow( ( (alpha[0] + alpha[1]*pow(Y,(8./3.)) +alpha[2]*pow(Y,(16./3.))+  
             alpha[3]*pow(Y,(24./3.)) + pow(Y,(32./3.)) ) / ( beta1+
-			+beta2*pow(Y,(8./3.))+pow(Y,(16./3.)) )),0.25);
+			+beta2*pow(Y,(8./3.))+pow(Y,(16./3.)) )),0.25); 
 }
 
 
+//Обратная функция к функции Ферми-Дирака I05.
 double invI05(double z)
 {
 	double y=sqrt(1.5*z);
@@ -83,7 +84,8 @@ double invI05(double z)
 	else return ComKsi2(y);
 }
 
-// page 48
+//Ветвь при малых значениях аргумента
+//Функция от квадрата y
 double I15low(double y2)
 {
 	double hs,zn;
@@ -92,7 +94,7 @@ double I15low(double y2)
 	return y2*pow(hs/zn,1/3.0);
 }
 
-// page 48
+//Ветвь при больших значениях аргумента
 double I15hi(double y)
 {
 	double y8d3=pow(y,8/3.0);
@@ -102,7 +104,7 @@ double I15hi(double y)
 	return 0.4*y*y*pow(hs/zn,1/4.0);
 }
 
-// page 48
+//Функция Ферми-Дирака I15(invI05(z))
 double I15invI05(double z)
 {
 	double y=sqrt(1.5*z);
@@ -110,19 +112,22 @@ double I15invI05(double z)
 	else return I15hi(y);
 }
 
-//page  48 I05(mu/t)
+//Величина I05(mu/t)
 double I05mu_d_t(double t,double V,double xe)
 {
 	return M_PI*M_PI*xe/(sqrt(2.0)*pow(t,1.5)*V);
 }
 
-//page 48 I15(mu/t)
+//Величина I15(mu/t)
 double I15mu_d_t(double t,double V,double xe)
 {
 	return I15invI05(I05mu_d_t(t,V,xe));
 }
 
-// page 42
+//Вычисление хим. потенциала для учета вырождения
+//t - электр. температура
+//V - объем в а.е.
+//xe - степень ионизации
 double mu(double t,double V,double xe)
 {
 	return invI05(M_PI*M_PI*xe / (sqrt(2.0)*pow(t, 1.5)*V)) * t;
