@@ -105,12 +105,29 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
     outputTable(f, "E_Saha", eTable);
 }
 
+void testSahaLeft()
+{
+    const TElement elem(29, 0.6); //Расчет для меди c Z=29
+    SahaSolver solver(elem);
+
+    SahaPoint res = solver.Calculate_lgTeV_lgVae(1,-1);
+    printf("xe = %g\n",res.Xe);
+
+    printf("Vector SahaLeft:");
+    std::vector<double> result;
+    solver.SahaLeft(result);
+
+    for(auto &x : result) printf("%g ",x);
+    printf("\n");
+}
+
 int main()
 {
 	try
 	{
+        testSahaLeft();
 		//CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
-        calculator(82, 0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05, "saha_Pb.m");
+        //calculator(82, 0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05, "saha_Pb.m");
 
         /*saha::Point ppp;
 		ppp = saha::Calculate(26, 1.5, 2);

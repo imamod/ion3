@@ -195,7 +195,13 @@ double SahaSolver::Vion(double rCoeff)
 		double vi = 4 / 3.0 * M_PI * pow(rCoeff * (i + 1) / _element.fi[i], 3.0);
 		V += _x[i] * vi;
 	}
-	return V;
+    return V;
+}
+
+void SahaSolver::SahaLeft(std::vector<double> &result)
+{
+    //Здесь считаем левую часть системы уравнений Саха и помещаем результат в result
+    result.resize(_element.Z, -1);//Заглушка, ее надо будет убрать
 }
 
 double SahaSolver::p(double T, double vFree)

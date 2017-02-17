@@ -28,6 +28,7 @@ public:
     SahaPoint Calculate_lgTeV_lgVae(double lgT, double lgV);
     void GetX(std::vector<double> &x);
 	double Vion(double rCoeff);
+    void SahaLeft(std::vector<double> &result);
 
 private:	
 	void error(const std::string & errorType, const std::string & message, double T, double V);
