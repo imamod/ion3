@@ -29,6 +29,7 @@ public:
     void GetX(std::vector<double> &x);
 	double Vion(double rCoeff);
     void SahaLeft(std::vector<double> &result);
+    void vtest(double lgT, double lgVstart, double xe, double lgVstep, int N);
 
 private:	
 	void error(const std::string & errorType, const std::string & message, double T, double V);

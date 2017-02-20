@@ -122,11 +122,20 @@ void testSahaLeft()
     printf("\n");
 }
 
+void vtest()
+{
+    const TElement elem(29, 0.6); //Расчет для меди c Z=29
+    SahaSolver solver(elem);
+    solver.vtest(3, -1.7, 19.0398, 0.01, 150);
+}
+
 int main()
 {
 	try
 	{
         testSahaLeft();
+        vtest();
+        //testSahaLeft();
 		//CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
         //calculator(82, 0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05, "saha_Pb.m");
 

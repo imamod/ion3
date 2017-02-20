@@ -212,6 +212,20 @@ void SahaSolver::SahaLeft(std::vector<double> &result)
     result.resize(_element.Z, -1);//Заглушка, ее надо будет убрать
 }
 
+void SahaSolver::vtest(double lgT, double lgVstart, double xe, double lgVstep, int N)
+{
+    double T = pow(10.0,lgT) / eFi;
+
+    double lgvFree = lgVstart;
+    printf("res=[");
+    for(int i = 0; i < N ; lgvFree += lgVstep, i++)
+    {
+        double vFree = pow(10.0,lgvFree);
+        printf("%g %g\n", lgvFree, ffV(xe, T, 1, vFree));
+    }
+    printf("];\n");
+}
+
 double SahaSolver::p(double T, double vFree, double xe)
 {
     return 2*sqrt(2.0)/(3*M_PI*M_PI) * pow(T,2.5) * I15mu_d_t(T,vFree,xe) + T / vFree;
