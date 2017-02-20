@@ -110,7 +110,7 @@ void testSahaLeft()
     const TElement elem(29, 0.6); //Расчет для меди c Z=29
     SahaSolver solver(elem);
 
-    SahaPoint res = solver.Calculate_lgTeV_lgVae(1,-1);
+    SahaPoint res = solver.Calculate_lgTeV_lgVae(3,-0.5);
     printf("xe = %g\n",res.Xe);
 
     printf("Vector SahaLeft:");

@@ -34,16 +34,17 @@ private:
 	void error(const std::string & errorType, const std::string & message, double T, double V);
     void formH0(double mu, double P, double T, double &maxH0);
     double ff(double xe, double T, double V);
-    double Vfree(double V);
+    double ffV(double xe, double T, double V, double vFree);
+    double Vfree(double V, double xe);
 
-    double e(double T, double vFree);
-    double p(double T, double vFree);
-    double s(double T, double vFree);
-    void formX(double T, double V);
+    double e(double T, double vFree, double xe);
+    double p(double T, double vFree, double xe);
+    double s(double T, double vFree, double xe);
+    void formX(double T, double V, double xe);
     const TElement &_element;
     std::vector<double> _x;
     std::vector<double> _H0;
-    double _xe;
+    //double _xe;
 };
 
 #endif // SAHASOLVER

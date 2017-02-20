@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <stdexcept>
 
-SahaSolver::SahaSolver(const TElement &element):_element(element), _xe(0)
+SahaSolver::SahaSolver(const TElement &element):_element(element)
 {
     _x.resize(element.Z+1);
     _H0.resize(element.Z+1);
@@ -18,12 +18,14 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 {
     double a = -746, b = log(double(_element.Z)), c;
     double fa, fb, fc;
+    double xe = 0;
+
     fa = ff(exp(a), T, V);
     fb = ff(exp(b), T, V);
 	if(((fa >= 0) && (fb >= 0)) || ((fa <= 0) && (fb <= 0)))
 	{
-		if (fabs(fa) < fabs(fb)) _xe = exp(a);
-		else _xe = exp(b);
+        if (fabs(fa) < fabs(fb)) xe = exp(a);
+        else xe = exp(b);
 	}
 	else
 	{
@@ -48,23 +50,23 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 			}
 		}
 		while (b - a > 1e-7);
-		_xe = exp(0.5*(a + b));
+        xe = exp(0.5*(a + b));
 	}
 
-	if (!isfinite(_xe))
+    if (!isfinite(xe))
 	{
 		char message[256];
-		sprintf(message, "xe=%g\n",_xe);
+        sprintf(message, "xe=%g\n",xe);
 		error("invalid xe", message, T, V);
 	}
 
-    formX(T, V);
+    formX(T, V, xe);
 
-    double vFree = Vfree(V);
+    double vFree = Vfree(V, xe);
     SahaPoint result;
-    double E = e(T,vFree);
-    double S = s(T,vFree);
-    double P = p(T,vFree);
+    double E = e(T,vFree, xe);
+    double S = s(T,vFree, xe);
+    double P = p(T,vFree, xe);
 
     result.Z = _element.Z;
     result.T = T;
@@ -72,8 +74,8 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     result.E = E;
     result.P = P;
     result.S = S;
-    result.Xe = _xe;
-    result.M = mu(T, vFree, _xe);
+    result.Xe = xe;
+    result.M = mu(T, vFree, xe);
     result.F = E - T * S;
     result.K = 1 - vFree / V;
 
@@ -87,15 +89,19 @@ SahaPoint SahaSolver::Calculate_lgTeV_lgVae(double lgT, double lgV)
 
 double SahaSolver::ff(double xe, double T, double V)
 {
-    _xe = xe;
-    double vFree = Vfree(V);
+    double vFree = Vfree(V, xe);
 	if (vFree < 0)
 	{
 		return std::numeric_limits<double>::max();
 	}
 
+    return ffV(xe, T, V, vFree);
+}
+
+double SahaSolver::ffV(double xe, double T, double V, double vFree)
+{
     double maxH0;
-    formH0(mu(T, vFree, _xe), p(T, vFree), T, maxH0);
+    formH0(mu(T, vFree, xe), p(T, vFree, xe), T, maxH0);
 
     double expTemp1, Asum = 0, Bsum = 0;
     for(unsigned int i = 0; i <= _element.Z; i++)
@@ -109,7 +115,6 @@ double SahaSolver::ff(double xe, double T, double V)
     return Asum / Bsum - xe; // похоже на формулу на стр 42, где считается хе, но почему здесь вычитаем хе
     // Потому что это уравнение относительно xe, и чтобы его решить надо все перегнать все в левую часть,
     // чтобы было F(xe) = 0, а потом решать.
-
 }
 
 void SahaSolver::error(const std::string & errorType, const std::string &message, double T, double V)
@@ -150,10 +155,10 @@ void SahaSolver::formH0(double mu, double P, double T, double &maxH0)
     //в знаменателе, что происходит уже в функции ff
 }
 
-void SahaSolver::formX(double T, double V)
+void SahaSolver::formX(double T, double V, double xe)
 {
-    double maxH0, vFree = Vfree(V);
-    formH0(mu(T, vFree, _xe), p(T,vFree), T, maxH0);
+    double maxH0, vFree = Vfree(V, xe);
+    formH0(mu(T, vFree, xe), p(T,vFree, xe), T, maxH0);
 
     double expSum = 0;
     for(unsigned int i = 0; i <= _element.Z; i++)
@@ -170,16 +175,15 @@ void SahaSolver::formX(double T, double V)
     }
 }
 
-double SahaSolver::Vfree(double V)
+double SahaSolver::Vfree(double V, double xe)
 {
-    unsigned int i = floor(_xe); // _xe - это концентрация здесь? что показывает i?
-    // _xe - электронная концентрация. Плохо, что это глобальная переменная,
-    // надо бы убрать потом и сделать локальной
+    unsigned int i = floor(xe); // _xe - это концентрация здесь? что показывает i?
+    // xe - электронная концентрация
     // i - целая часть _xe, что и так, наверное, понятно
     // Содержимое этой функции нигде не описано. Суть происходящего - приближенное вычисление
     // среднего объема ионов, а затем свободного объема. Собственно из-за этой вот "приближенности" весь этот
     // расчет не вполне точен и надо использовать метод Ньютона, чем Вы, собственно, и займетесь.
-    double fracXe = _xe - i;
+    double fracXe = xe - i;
     if(i < _element.Z)
     {
         return V - (_element.v[i] * (1-fracXe) + _element.v[i+1] * fracXe);
@@ -204,17 +208,17 @@ void SahaSolver::SahaLeft(std::vector<double> &result)
     result.resize(_element.Z, -1);//Заглушка, ее надо будет убрать
 }
 
-double SahaSolver::p(double T, double vFree)
+double SahaSolver::p(double T, double vFree, double xe)
 {
-    return 2*sqrt(2.0)/(3*M_PI*M_PI) * pow(T,2.5) * I15mu_d_t(T,vFree,_xe) + T / vFree;
+    return 2*sqrt(2.0)/(3*M_PI*M_PI) * pow(T,2.5) * I15mu_d_t(T,vFree,xe) + T / vFree;
 }
 
-double SahaSolver::s(double T, double vFree)
+double SahaSolver::s(double T, double vFree, double xe)
 {
     double Se = 0;
-    if(_xe > 0)
+    if(xe > 0)
     {
-        Se = sqrt(2.0) / (M_PI*M_PI) * pow(T, 1.5) * vFree * (5.0 / 3.0 * I15mu_d_t(T, vFree, _xe) - mu(T,vFree,_xe) / T * I05mu_d_t(T, vFree, _xe));
+        Se = sqrt(2.0) / (M_PI*M_PI) * pow(T, 1.5) * vFree * (5.0 / 3.0 * I15mu_d_t(T, vFree, xe) - mu(T,vFree,xe) / T * I05mu_d_t(T, vFree, xe));
     }
 
     const double M = 1822.887 * _element.A;
@@ -230,9 +234,9 @@ double SahaSolver::s(double T, double vFree)
     return Si + Se;
 }
 
-double SahaSolver::e(double T, double vFree)
+double SahaSolver::e(double T, double vFree, double xe)
 {
-    double Ee = sqrt(2.0)/(M_PI*M_PI) * pow(T,2.5) * vFree * I15mu_d_t(T,vFree,_xe);
+    double Ee = sqrt(2.0)/(M_PI*M_PI) * pow(T,2.5) * vFree * I15mu_d_t(T,vFree,xe);
 
     double Efi = 0;
     for(unsigned int i = 1; i <= _element.Z; i++)
