@@ -44,7 +44,6 @@ private:
     const TElement &_element;
     std::vector<double> _x;
     std::vector<double> _H0;
-    //double _xe;
 };
 
 #endif // SAHASOLVER

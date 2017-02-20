@@ -85,6 +85,7 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 SahaPoint SahaSolver::Calculate_lgTeV_lgVae(double lgT, double lgV)
 {
     return Calculate_TVae(pow(10.0,lgT) / eFi, pow(10.0,lgV)); // что ткое eFi?
+    //eFi - это столько эВ в одной атомной единице температуры
 }
 
 double SahaSolver::ff(double xe, double T, double V)
@@ -138,6 +139,7 @@ void SahaSolver::formH0(double mu, double P, double T, double &maxH0)
     //Лучше посмотрите на формулу (25) из реферата и ту, что прямо под ней
     //Тут _H0 это fk(xe)
     //Там в роли DFk берем P * (_element.v[i] - _element.v[i-1]), "круглого" DFk нет совсем // что такое DFk? не нахожу такого обозначения
+    //DFk - это "дельта фи ik", индекс i можно выкинуть, он для смеси элементов
     //а Iinv1/2(...) - это и есть mu, при этом t=T
     //Все Gk равны 2, кроме последнего, который = 1, из-за этого приходится делать это вычитание
 
@@ -167,6 +169,8 @@ void SahaSolver::formX(double T, double V, double xe)
     }
 
     double logX0 = -log(expSum) - maxH0; // что такое logX0 и почему оно считается так?
+    //logX0 - это по смыслу log(_x[0]), см. формулу (26)
+    //Манипуляции с maxH0 нужны для борьбы с переполнением, см. formH0
 
     for(unsigned int i = 0; i <= _element.Z; i++)
     {
