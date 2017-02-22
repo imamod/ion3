@@ -111,7 +111,7 @@ void testSahaLeft()
     const TElement elem(29, 0.6); //Расчет для меди c Z=29
     SahaSolver solver(elem);
 
-    SahaPoint res = solver.Calculate_lgTeV_lgVae(3,-0.5);
+    SahaPoint res = solver.Calculate_lgTeV_lgVae(2, 1);
     printf("xe = %g\n",res.Xe);
 
     printf("Vector SahaLeft:");
@@ -126,7 +126,16 @@ void vtest()
 {
     const TElement elem(29, 0.6); //Расчет для меди c Z=29
     SahaSolver solver(elem);
-    solver.vtest(3, -1.7, 19.0398, 0.01, 150);
+
+    double xe = elem.Z, vfree, V, vi = 0, vfreeOld;
+
+    vfreeOld = vfree = V = pow(10.0, 1);
+
+    for(double vfree = 6; vfree <= 7; vfree += 0.01)
+    {
+        solver.vfreesolver(2, log10(V), vfree, xe, vi);
+        printf("vfree = %g xe = %g vion = %g V = %g\n", vfree, xe, log10(vi),log10(vi + vfree));
+    }
 }
 
 int main()

@@ -29,7 +29,7 @@ public:
     void GetX(std::vector<double> &x);
 	double Vion(double rCoeff);
     void SahaLeft(std::vector<double> &result);
-    void vtest(double lgT, double lgVstart, double xe, double lgVstep, int N);
+    void vfreesolver(double lgT, double lgV, double vfree, double &xe, double &vi);
 
 private:	
 	void error(const std::string & errorType, const std::string & message, double T, double V);
@@ -37,11 +37,12 @@ private:
     double ff(double xe, double T, double V);
     double ffV(double xe, double T, double V, double vFree);
     double Vfree(double V, double xe);
+    double vion();
 
     double e(double T, double vFree, double xe);
     double p(double T, double vFree, double xe);
     double s(double T, double vFree, double xe);
-    void formX(double T, double V, double xe);
+    void formX(double T, double V, double vFree, double xe);
     const TElement &_element;
     std::vector<double> _x;
     std::vector<double> _H0;
