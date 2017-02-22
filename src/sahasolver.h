@@ -29,7 +29,7 @@ public:
     void GetX(std::vector<double> &x);
 	double Vion(double rCoeff);
     void SahaLeft(std::vector<double> &result);
-    void vfreesolver(double lgT, double lgV, double vfree, double &xe, double &vi);
+    double vfreesolver(double lgT, double lgV, double vfree, double &xe, double &vi);
 
 private:	
 	void error(const std::string & errorType, const std::string & message, double T, double V);

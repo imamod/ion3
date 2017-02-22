@@ -133,8 +133,8 @@ void vtest()
 
     for(double vfree = 6; vfree <= 7; vfree += 0.01)
     {
-        solver.vfreesolver(2, log10(V), vfree, xe, vi);
-        printf("vfree = %g xe = %g vion = %g V = %g\n", vfree, xe, log10(vi),log10(vi + vfree));
+        double res = solver.vfreesolver(2, log10(V), vfree, xe, vi);
+        printf("vfree = %g xe = %g res = %g\n", vfree, xe, res);
     }
 }
 

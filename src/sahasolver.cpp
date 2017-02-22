@@ -224,7 +224,7 @@ void SahaSolver::SahaLeft(std::vector<double> &result)
     result.resize(_element.Z, -1);//Заглушка, ее надо будет убрать
 }
 
-void SahaSolver::vfreesolver(double lgT, double lgV, double vfree, double &xe, double &vi)
+double SahaSolver::vfreesolver(double lgT, double lgV, double vfree, double &xe, double &vi)
 {
     double T = pow(10.0, lgT) / eFi;
     double V = pow(10.0, lgV);
@@ -267,6 +267,8 @@ void SahaSolver::vfreesolver(double lgT, double lgV, double vfree, double &xe, d
 
     formX(T, V, vfree, xe);
     vi = vion();
+
+    return V - (vfree + vi);
 
 }
 
