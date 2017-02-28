@@ -63,6 +63,8 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     double vFree = Vfree(V, xe);
     formX(T, V, vFree, xe);
 
+    //printf("x: ");for(auto &value : _x) printf("%g ",value);printf("\n");
+
     SahaPoint result;
     double E = e(T,vFree, xe);
     double S = s(T,vFree, xe);
@@ -97,9 +99,6 @@ double SahaSolver::ff(double xe, double T, double V)
 	{
 		return std::numeric_limits<double>::max();
 	}
-
-    //formX(T, V, vFree, xe);
-    //vFree = V - vion();
 
     return ffV(xe, T, V, vFree);
 }
@@ -288,9 +287,49 @@ void SahaSolver::vgraph(double lgT, double lgV, double xe)
         formX(T, V, vfree, xe);
         double vi = vion();
 
-        printf("%g %g\n",log10(vfree+vi),ffV(xe,T,V,vfree));
+        printf("%g %g\n",log10(vfree+vi),ffV(xe,T,V,vfree) + xe);
     }
     printf("];plot(r(:,1),r(:,2));\n");
+}
+
+void SahaSolver::calc2(double lgT, double lgV, double xe)
+{
+    double T = pow(10.0, lgT) / eFi;
+    double V = pow(10.0, lgV);
+
+    double vfree = V;
+    double dxe;
+
+    for(int j = 0; j < 3; j++)
+    {
+
+    for(int i = 0; i < 3; i++)
+    {
+        formX(T, V, vfree, xe);
+
+        double sum = 0, sum1 = 0;
+        for(int i = 0; i <= _element.Z; i++)
+        {
+            sum += _x[i];
+            sum1 += _x[i] * i;
+        }
+
+        printf("[%g, %g, %g]", sum, sum1, ffV(xe,T,V,vfree) + xe);
+
+        double vi = vion();
+        printf("V = %g vi = %g errV = %g\n",V, vi, vfree + vi - V);
+        if(fabs(vfree + vi - V) / V < 1e-6) break;
+        vfree = V - vi;
+    }
+
+    dxe = ffV(xe,T,V,vfree);
+    printf("xe = %g ", dxe + xe);
+    xe = xe + dxe;
+
+    if(fabs(dxe) < 1e-6) break;
+
+    }
+
 }
 
 double SahaSolver::p(double T, double vFree, double xe)

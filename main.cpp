@@ -138,10 +138,11 @@ void vtest(double lgVMin, double lgVMax, double lgVStep, double lgTMin, double l
             }
         }
     }*/
-    SahaPoint res = solver.Calculate_lgTeV_lgVae(3.65, -1);
+    SahaPoint res = solver.Calculate_lgTeV_lgVae(1, 1);
     printf("vError = %g xe = %g\n",res.vError,res.Xe);
+    solver.calc2(1,1,29);
 
-    solver.vgraph(3.65,3,27.01);
+    //solver.vgraph(0,3,6);
 }
 
 int main()

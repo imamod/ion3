@@ -32,6 +32,7 @@ public:
     void SahaLeft(std::vector<double> &result);
     double vfreesolver(double lgT, double lgV, double vfree, double &xe, double &vi);
     void vgraph(double lgT, double lgV, double xe);
+    void calc2(double lgT, double lgV, double xe);
 
 private:	
 	void error(const std::string & errorType, const std::string & message, double T, double V);
