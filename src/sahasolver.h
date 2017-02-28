@@ -18,6 +18,7 @@ struct SahaPoint
    double Xe;       // Ионизация
 
    double K;  // объёмная доля элекронных остовов в электронном газе, б/р
+   double vError;
 };
 
 class SahaSolver
@@ -30,6 +31,7 @@ public:
 	double Vion(double rCoeff);
     void SahaLeft(std::vector<double> &result);
     double vfreesolver(double lgT, double lgV, double vfree, double &xe, double &vi);
+    void vgraph(double lgT, double lgV, double xe);
 
 private:	
 	void error(const std::string & errorType, const std::string & message, double T, double V);

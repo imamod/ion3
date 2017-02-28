@@ -111,8 +111,8 @@ void testSahaLeft()
     const TElement elem(29, 0.6); //Расчет для меди c Z=29
     SahaSolver solver(elem);
 
-    SahaPoint res = solver.Calculate_lgTeV_lgVae(2, 1);
-    printf("xe = %g\n",res.Xe);
+    SahaPoint res = solver.Calculate_lgTeV_lgVae(1, 1);
+    printf("xe = %g verr = %g\n",res.Xe,res.vError);
 
     printf("Vector SahaLeft:");
     std::vector<double> result;
@@ -122,20 +122,26 @@ void testSahaLeft()
     printf("\n");
 }
 
-void vtest()
+void vtest(double lgVMin, double lgVMax, double lgVStep, double lgTMin, double lgTMax, double lgTStep)
 {
     const TElement elem(29, 0.6); //Расчет для меди c Z=29
     SahaSolver solver(elem);
 
-    double xe = elem.Z, vfree, V, vi = 0, vfreeOld;
-
-    vfreeOld = vfree = V = pow(10.0, 1);
-
-    for(double vfree = 6; vfree <= 7; vfree += 0.01)
+    /*for (double lgT = lgTMax; lgT > lgTMin; lgT -= lgTStep)
     {
-        double res = solver.vfreesolver(2, log10(V), vfree, xe, vi);
-        printf("vfree = %g xe = %g res = %g\n", vfree, xe, res);
-    }
+        for (double lgV = lgVMin; lgV < lgVMax; lgV += lgVStep)
+        {
+            SahaPoint res = solver.Calculate_lgTeV_lgVae(lgT, lgV);
+            if(fabs(res.vError) > 0.1)
+            {
+                printf("lgT = %g lgV = %g vError = %g\n",lgT,lgV,res.vError);
+            }
+        }
+    }*/
+    SahaPoint res = solver.Calculate_lgTeV_lgVae(3.65, -1);
+    printf("vError = %g xe = %g\n",res.vError,res.Xe);
+
+    solver.vgraph(3.65,3,27.01);
 }
 
 int main()
@@ -143,7 +149,7 @@ int main()
 	try
 	{
         testSahaLeft();
-        vtest();
+        vtest(-3, 6.01, 0.05, -1.51, 4.6, 0.05);
         //testSahaLeft();
 		//CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
         //calculator(82, 0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05, "saha_Pb.m");

@@ -63,7 +63,6 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     double vFree = Vfree(V, xe);
     formX(T, V, vFree, xe);
 
-
     SahaPoint result;
     double E = e(T,vFree, xe);
     double S = s(T,vFree, xe);
@@ -79,6 +78,7 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     result.M = mu(T, vFree, xe);
     result.F = E - T * S;
     result.K = 1 - vFree / V;
+    result.vError = (vFree + vion() - V) / V;
 
     return result;
 }
@@ -92,10 +92,14 @@ SahaPoint SahaSolver::Calculate_lgTeV_lgVae(double lgT, double lgV)
 double SahaSolver::ff(double xe, double T, double V)
 {
     double vFree = Vfree(V, xe);
+
 	if (vFree < 0)
 	{
 		return std::numeric_limits<double>::max();
 	}
+
+    //formX(T, V, vFree, xe);
+    //vFree = V - vion();
 
     return ffV(xe, T, V, vFree);
 }
@@ -262,7 +266,7 @@ double SahaSolver::vfreesolver(double lgT, double lgV, double vfree, double &xe,
             }
         }
         while (b - a > 1e-12);
-        xe = exp(0.5*(a + b));
+        xe = exp(0.5 * (a + b));
     }
 
     formX(T, V, vfree, xe);
@@ -270,6 +274,23 @@ double SahaSolver::vfreesolver(double lgT, double lgV, double vfree, double &xe,
 
     return V - (vfree + vi);
 
+}
+
+void SahaSolver::vgraph(double lgT, double lgV, double xe)
+{
+    double T = pow(10.0, lgT) / eFi;
+    double V = pow(10.0, lgV);
+
+    printf("r=[");
+    for(double mm = -6; mm < 0.005; mm += 0.01)
+    {
+        double vfree = V * pow(10.0, mm);
+        formX(T, V, vfree, xe);
+        double vi = vion();
+
+        printf("%g %g\n",log10(vfree+vi),ffV(xe,T,V,vfree));
+    }
+    printf("];plot(r(:,1),r(:,2));\n");
 }
 
 double SahaSolver::p(double T, double vFree, double xe)
