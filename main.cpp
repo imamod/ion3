@@ -41,7 +41,7 @@ void CrashTest(double rCoeff, double lgVMin, double lgVMax, double lgVStep, doub
 		const TElement elem(Z, rCoeff);
 		SahaSolver solver(elem);
 
-        printf("[%d] ",Z);
+        printf("[%d] ",Z);fflush(stdout);
 
 		for (double lgT = lgTMax; lgT > lgTMin; lgT -= lgTStep)
 		{
@@ -157,7 +157,7 @@ int main()
         //testSahaLeft();
         //vtest(-3, 6.01, 0.05, -1.51, 4.6, 0.05);
         //testSahaLeft();
-		//CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
+        //CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
         calculator(29, 0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05, "saha_Cu1.m");
 
         /*saha::Point ppp;

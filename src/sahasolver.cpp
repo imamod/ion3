@@ -76,7 +76,6 @@ bool SahaSolver::calcCore2(double T, double V, double &xe, double &vFree)
     double vFreeOld = vFree;
 
     double dxe;
-    double vi;
     double vError;
 
     for(int i = 0; i < 100; i++)
