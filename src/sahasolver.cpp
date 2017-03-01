@@ -65,7 +65,7 @@ bool SahaSolver::calcCore1(double T, double V, double &xe, double &vFree)
 
     double vError = (vFree + vion() - V) / V;
 
-    if(fabs(vError) > 1e-3) return false;
+    if(fabs(vError) > 1e-4) return false;
     else return true;
 }
 
@@ -91,7 +91,7 @@ bool SahaSolver::calcCore2(double T, double V, double &xe, double &vFree)
 
         xe = xe + dxe;
 
-        if((log(fabs(xe+dxe)) - log(fabs(xe)) < 1e-7) && (vError < 1e-3)) return true;
+        if((log(fabs(xe+dxe)) - log(fabs(xe)) < 1e-7) && (vError < 1e-4)) return true;
     }
 
     xe = xeOld;
@@ -296,6 +296,9 @@ double SahaSolver::vfreefinder(double T, double V, double xe)
         {
             c = 0.5*(a + b);
             fc = vFun(xe, T, V, exp(c));
+
+            //printf("fa = %g fb = %g fc = %g a = %g b = %g c = %g\n",fa,fb,fc,a,b,c);
+
             if (((fa <= 0) && (fc >= 0)) || ((fa >= 0) && (fc <= 0)))
             {
                 b = c; fb = fc;
@@ -312,7 +315,7 @@ double SahaSolver::vfreefinder(double T, double V, double xe)
 
             }
         }
-        while (b - a > 1e-7);
+        while (b - a > 1e-14);
         vfree = exp(0.5 * (a + b));
     }
 
@@ -338,14 +341,10 @@ void SahaSolver::vgraph(double lgT, double lgV, double xe)
     fprintf(gf,"];plot(r(:,1),r(:,2),'r+-');\n");
     fclose(gf);
 
-    /*xe = _element.Z;
-    for(int i = 0; i < 30; i++)
-    {
         double vf = vfreefinder(T, V, xe);
         formX(T, V, vf, xe);
         xe = ffV(xe,T,V,vf) + xe;
-        printf("vf = %g xe = %g\n",log10(vf + vion()), xe);
-    }*/
+        printf("vError = %g xe = %g\n",vf + vion() - V, xe);
 }
 
 double SahaSolver::p(double T, double vFree, double xe)
