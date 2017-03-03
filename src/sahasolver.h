@@ -18,6 +18,7 @@ struct SahaPoint
    double Xe;       // Ионизация
 
    double K;  // объёмная доля элекронных остовов в электронном газе, б/р
+   double vError;
 };
 
 class SahaSolver
@@ -28,21 +29,29 @@ public:
     SahaPoint Calculate_lgTeV_lgVae(double lgT, double lgV);
     void GetX(std::vector<double> &x);
 	double Vion(double rCoeff);
+    void SahaLeft(std::vector<double> &result);
+    void vgraph(double lgT, double lgV, double xe);
 
-private:	
+private:
+    double vfreefinder(double T, double V, double xe);
+    bool calcCore1(double T, double V, double &xe, double &vFree);
+    bool calcCore2(double T, double V, double &xe, double &vFree);
 	void error(const std::string & errorType, const std::string & message, double T, double V);
     void formH0(double mu, double P, double T, double &maxH0);
     double ff(double xe, double T, double V);
-    double Vfree(double V);
+    double ffV(double xe, double T, double V, double vFree);
+    double vFun(double xe, double T, double V, double vFree);
+    double Vfree(double V, double xe);
+    double vion();
 
-    double e(double T, double vFree);
-    double p(double T, double vFree);
-    double s(double T, double vFree);
-    void formX(double T, double V);
+    double e(double T, double vFree, double xe);
+    double p(double T, double vFree, double xe);
+    double s(double T, double vFree, double xe);
+    void formX(double T, double V, double vFree, double xe);
     const TElement &_element;
     std::vector<double> _x;
     std::vector<double> _H0;
-    double _xe;
+
 };
 
 #endif // SAHASOLVER

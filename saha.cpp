@@ -12,10 +12,10 @@ namespace saha
 		const unsigned int c_maxZ = 103;
 		//const double ionRadiusCoeff = 0; //Нулевое значение - режим совместимости со старой Сахой
 		const double ionRadiusCoeff = 0.6;
-	
+
 		std::shared_ptr<TElement> elem;
 		std::shared_ptr<SahaSolver> solver;
-	   
+
 		SahaPoint calculate(unsigned int i_Z, double i_lgT, double i_lgV)
 		{
 			if ((i_Z > c_maxZ) || (i_Z < 1))
