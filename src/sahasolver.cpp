@@ -20,6 +20,8 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
     double fa, fb, fc;
     double root = 0;
 
+    int cc = 0;
+
     fa = F(exp(a));
     fb = F(exp(b));
     if(((fa >= 0) && (fb >= 0)) || ((fa <= 0) && (fb <= 0)))
@@ -48,8 +50,9 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
                 error("find root error", message, T, V);
 
             }
+            cc++;
         }
-        while (b - a > eps);
+        while ((b - a > eps) && (cc < 60));
         root = exp(0.5*(a + b));
     }
 
@@ -85,7 +88,9 @@ bool SahaSolver::calcCore2(double T, double V, double &xe, double &vFree)
     double dxe;
     double vError;
 
-    for(int i = 0; i < 100; i++)
+    //int it = 0;
+
+    for(int i = 0; i < 10; i++)
     {
         vFree = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-14, T, V);
 
@@ -94,16 +99,60 @@ bool SahaSolver::calcCore2(double T, double V, double &xe, double &vFree)
 
         vError = fabs((vFree + vion() - V) / V);
 
-        if(fabs(vError) > 1e-2) break;
+        if(fabs(vError) > 1e-1) break;
 
         xe = xe + dxe;
 
-        if((log(fabs(xe+dxe)) - log(fabs(xe)) < 1e-7) && (vError < 1e-4)) return true;
+        //it++;
+        if((log(fabs(xe+dxe)) - log(fabs(xe)) < 1e-7) && (vError < 1e-4))
+        {
+            //printf("<%d>",it);
+            return true;
+        }
     }
+
+    //printf("<%d>",it);
 
     xe = xeOld;
     vFree = vFreeOld;
     return false;
+}
+
+double SahaSolver::ff(double xe, double T, double V)
+{
+    double vFree = Vfree(V, xe);
+
+    if (vFree < 0)
+    {
+        return std::numeric_limits<double>::max();
+    }
+
+    return ffV(xe, T, V, vFree);
+}
+
+double SahaSolver::ffV(double xe, double T, double V, double vFree)
+{
+    double maxH0;
+    formH0(mu(T, vFree, xe), p(T, vFree, xe), T, maxH0);
+
+    double expTemp1, Asum = 0, Bsum = 0;
+    for(unsigned int i = 0; i <= _element.Z; i++)
+    {
+        //Вычитая maxH0, выполянем деление на макс. слагаемое знаменателя, см. ниже в formH0
+        expTemp1 = exp(_H0[i] - maxH0); // что за формулы в данном цикле, что высчитываем? - см. ниже
+        Asum += i * expTemp1;
+        Bsum += expTemp1;
+    }
+
+    return Asum / Bsum - xe; // похоже на формулу на стр 42, где считается хе, но почему здесь вычитаем хе
+    // Потому что это уравнение относительно xe, и чтобы его решить надо все перегнать все в левую часть,
+    // чтобы было F(xe) = 0, а потом решать.
+}
+
+double SahaSolver::vFun(double xe, double T, double V, double vFree)
+{
+    formX(T, V, vFree, xe);
+    return (vFree+vion()) / V - 1;
 }
 
 SahaPoint SahaSolver::Calculate_TVae(double T, double V)
@@ -139,43 +188,6 @@ SahaPoint SahaSolver::Calculate_lgTeV_lgVae(double lgT, double lgV)
 {
     return Calculate_TVae(pow(10.0,lgT) / eFi, pow(10.0,lgV)); // что ткое eFi?
     //eFi - это столько эВ в одной атомной единице температуры
-}
-
-double SahaSolver::ff(double xe, double T, double V)
-{
-    double vFree = Vfree(V, xe);
-
-	if (vFree < 0)
-	{
-		return std::numeric_limits<double>::max();
-	}
-
-    return ffV(xe, T, V, vFree);
-}
-
-double SahaSolver::ffV(double xe, double T, double V, double vFree)
-{
-    double maxH0;
-    formH0(mu(T, vFree, xe), p(T, vFree, xe), T, maxH0);
-
-    double expTemp1, Asum = 0, Bsum = 0;
-    for(unsigned int i = 0; i <= _element.Z; i++)
-    {
-        //Вычитая maxH0, выполянем деление на макс. слагаемое знаменателя, см. ниже в formH0
-        expTemp1 = exp(_H0[i] - maxH0); // что за формулы в данном цикле, что высчитываем? - см. ниже
-        Asum += i * expTemp1;
-        Bsum += expTemp1;
-    }
-
-    return Asum / Bsum - xe; // похоже на формулу на стр 42, где считается хе, но почему здесь вычитаем хе
-    // Потому что это уравнение относительно xe, и чтобы его решить надо все перегнать все в левую часть,
-    // чтобы было F(xe) = 0, а потом решать.
-}
-
-double SahaSolver::vFun(double xe, double T, double V, double vFree)
-{
-    formX(T, V, vFree, xe);
-    return vFree+vion() - V;
 }
 
 void SahaSolver::error(const std::string & errorType, const std::string &message, double T, double V)
