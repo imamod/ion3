@@ -14,25 +14,25 @@ SahaSolver::SahaSolver(const TElement &element):_element(element)
     _H0.resize(element.Z+1);
 }
 
-bool SahaSolver::calcCore1(double T, double V, double &xe, double &vFree)
+double SahaSolver::findroot(double logA, double logB, const std::function<double (double)> &F, double eps, double T, double V)
 {
-    double a = -746, b = log(double(_element.Z)), c;
+    double a = logA, b = logB, c;
     double fa, fb, fc;
-    xe = 0;
+    double root = 0;
 
-    fa = ff(exp(a), T, V);
-    fb = ff(exp(b), T, V);
+    fa = F(exp(a));
+    fb = F(exp(b));
     if(((fa >= 0) && (fb >= 0)) || ((fa <= 0) && (fb <= 0)))
     {
-        if (fabs(fa) < fabs(fb)) xe = exp(a);
-        else xe = exp(b);
+        if (fabs(fa) < fabs(fb)) root = exp(a);
+        else root = exp(b);
     }
     else
     {
         do
         {
             c = 0.5*(a + b);
-            fc = ff(exp(c), T, V);
+            fc = F(exp(c));
             if (((fa <= 0) && (fc >= 0)) || ((fa >= 0) && (fc <= 0)))
             {
                 b = c; fb = fc;
@@ -49,9 +49,16 @@ bool SahaSolver::calcCore1(double T, double V, double &xe, double &vFree)
 
             }
         }
-        while (b - a > 1e-7);
-        xe = exp(0.5*(a + b));
+        while (b - a > eps);
+        root = exp(0.5*(a + b));
     }
+
+    return root;
+}
+
+bool SahaSolver::calcCore1(double T, double V, double &xe, double &vFree)
+{
+    xe = findroot(-746, log(double(_element.Z)), [&](double x) {return ff(x, T, V);}, 1e-7, T, V);
 
     if (!isfinite(xe))
     {
@@ -80,7 +87,8 @@ bool SahaSolver::calcCore2(double T, double V, double &xe, double &vFree)
 
     for(int i = 0; i < 100; i++)
     {
-        vFree = vfreefinder(T, V, xe);
+        vFree = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-14, T, V);
+
         formX(T, V, vFree, xe);
         dxe = ffV(xe,T,V,vFree);
 
@@ -275,53 +283,6 @@ void SahaSolver::SahaLeft(std::vector<double> &result)
     result.resize(_element.Z, -1);//Заглушка, ее надо будет убрать
 }
 
-double SahaSolver::vfreefinder(double T, double V, double xe)
-{
-
-    double a = log(V) - 30, b = log(V), c;
-    double fa, fb, fc;
-    double vfree;
-
-    fa = vFun(xe, T, V, exp(a));
-    fb = vFun(xe, T, V, exp(b));
-    if(((fa >= 0) && (fb >= 0)) || ((fa <= 0) && (fb <= 0)))
-    {
-        if (fabs(fa) < fabs(fb)) vfree = exp(a);
-        else vfree = exp(b);
-    }
-    else
-    {
-        do
-        {
-            c = 0.5*(a + b);
-            fc = vFun(xe, T, V, exp(c));
-
-            //printf("fa = %g fb = %g fc = %g a = %g b = %g c = %g\n",fa,fb,fc,a,b,c);
-
-            if (((fa <= 0) && (fc >= 0)) || ((fa >= 0) && (fc <= 0)))
-            {
-                b = c; fb = fc;
-            }
-            else if (((fb <= 0) && (fc >= 0)) || ((fb >= 0) && (fc <= 0)))
-            {
-                a = c; fa = fc;
-            }
-            else
-            {
-                char message[256];
-                sprintf(message, "ln(a) = %g ln(b) = %g ln(c) = %g fa = %g fb = %g fc = %g\n", a, b, c, fa, fb, fc);
-                error("find root error", message, T, V);
-
-            }
-        }
-        while (b - a > 1e-14);
-        vfree = exp(0.5 * (a + b));
-    }
-
-    return vfree;
-
-}
-
 void SahaSolver::vgraph(double lgT, double lgV, double xe)
 {
     double T = pow(10.0, lgT) / eFi;
@@ -340,10 +301,10 @@ void SahaSolver::vgraph(double lgT, double lgV, double xe)
     fprintf(gf,"];plot(r(:,1),r(:,2),'r+-');\n");
     fclose(gf);
 
-        double vf = vfreefinder(T, V, xe);
-        formX(T, V, vf, xe);
-        xe = ffV(xe,T,V,vf) + xe;
-        printf("vError = %g xe = %g\n",vf + vion() - V, xe);
+    double vf = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-14, T, V);
+    formX(T, V, vf, xe);
+    xe = ffV(xe,T,V,vf) + xe;
+    printf("vError = %g xe = %g\n",vf + vion() - V, xe);
 }
 
 double SahaSolver::p(double T, double vFree, double xe)

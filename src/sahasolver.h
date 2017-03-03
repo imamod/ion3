@@ -4,6 +4,7 @@
 #include "elements.h"
 #include <vector>
 #include <string>
+#include <functional>
 
 struct SahaPoint
 {
@@ -33,7 +34,7 @@ public:
     void vgraph(double lgT, double lgV, double xe);
 
 private:
-    double vfreefinder(double T, double V, double xe);
+    double findroot(double logA, double logB, const std::function<double(double)> &F, double eps, double T, double V);
     bool calcCore1(double T, double V, double &xe, double &vFree);
     bool calcCore2(double T, double V, double &xe, double &vFree);
 	void error(const std::string & errorType, const std::string & message, double T, double V);
