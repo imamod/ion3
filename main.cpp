@@ -147,7 +147,7 @@ void vtest(double lgVMin, double lgVMax, double lgVStep, double lgTMin, double l
     printf("vError = %g xe = %g\n",res.vError,res.Xe);
     //solver.calcCore2(3.65,-1,29);
 
-    solver.vgraph(-4,-0.2, 18.5);
+    //solver.vgraph(-4,-0.2, 18.5);
 }
 
 int main()

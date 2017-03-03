@@ -107,7 +107,10 @@ void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double vE
 
         if(vError > 1e-1) break;
 
-        if((log(fabs(xe+dxe)) - log(fabs(xe)) < 1e-7))
+        xeOld = xe;
+        xe = xe + dxe;
+
+        if((log(fabs(xe-dxe)) - log(fabs(xe)) < 1e-7))
         {
             if(vError > vErrorOld)
             {
@@ -120,8 +123,6 @@ void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double vE
             if(vError < vEps) break;
         }
 
-        xeOld = xe;
-        xe = xe + dxe;
     }
 
     result.xe = xe;
@@ -170,12 +171,13 @@ double SahaSolver::vFun(double xe, double T, double V, double vFree)
 SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 {
     const double thresholdEps = 1e-4;
-    double xe, vFree;
+    double xe, vFree, vError;
     calcCoreResult res1, res2;
 
     calcCore1(T, V, res1);
     xe = res1.xe;
     vFree = res1.vFree;
+    vError = res1.vError;
 
     if(res1.vError > thresholdEps)
     {
@@ -185,10 +187,9 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
         {
             xe = res2.xe;
             vFree = res2.vFree;
+            vError = res2.vError;
         }
     }
-
-    formX(T, V, vFree, xe);
 
     SahaPoint result;
     double E = e(T,vFree, xe);
@@ -205,7 +206,7 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     result.M = mu(T, vFree, xe);
     result.F = E - T * S;
     result.K = 1 - vFree / V;
-    result.vError = (vFree + vion() - V) / V;
+    result.vError = vError;
 
     return result;
 }
