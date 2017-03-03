@@ -34,9 +34,17 @@ public:
     void vgraph(double lgT, double lgV, double xe);
 
 private:
+
+    struct calcCoreResult
+    {
+        double xe;
+        double vFree;
+        double vError;
+    };
+
     double findroot(double logA, double logB, const std::function<double(double)> &F, double eps, double T, double V);
-    bool calcCore1(double T, double V, double &xe, double &vFree);
-    bool calcCore2(double T, double V, double &xe, double &vFree);
+    void calcCore1(double T, double V, calcCoreResult &result);
+    void calcCore2(double T, double V, calcCoreResult &result, double vEps);
 	void error(const std::string & errorType, const std::string & message, double T, double V);
     void formH0(double mu, double P, double T, double &maxH0);
     double ff(double xe, double T, double V);
@@ -52,6 +60,7 @@ private:
     const TElement &_element;
     std::vector<double> _x;
     std::vector<double> _H0;
+
 
 };
 

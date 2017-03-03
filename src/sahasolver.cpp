@@ -56,12 +56,17 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
         root = exp(0.5*(a + b));
     }
 
-    return root;
+    double root2 = exp(a) - (exp(b) - exp(a))/(fb-fa)*fa;
+    if(fabs(F(root2)) < fabs(F(root)))
+    {
+        return root2;
+    }
+    else return root;
 }
 
-bool SahaSolver::calcCore1(double T, double V, double &xe, double &vFree)
+void SahaSolver::calcCore1(double T, double V, calcCoreResult &result)
 {
-    xe = findroot(-746, log(double(_element.Z)), [&](double x) {return ff(x, T, V);}, 1e-7, T, V);
+    double xe = findroot(-746, log(double(_element.Z)), [&](double x) {return ff(x, T, V);}, 1e-7, T, V);
 
     if (!isfinite(xe))
     {
@@ -70,25 +75,20 @@ bool SahaSolver::calcCore1(double T, double V, double &xe, double &vFree)
         error("invalid xe", message, T, V);
     }
 
-    vFree = Vfree(V, xe);
-    formX(T, V, vFree, xe);
-
-    double vError = (vFree + vion() - V) / V;
-
-    if(fabs(vError) > 1e-4) return false;
-    else return true;
+    result.vFree = Vfree(V, xe);
+    formX(T, V, result.vFree, xe);
+    result.vError = fabs((result.vFree + vion()) / V - 1);
+    result.xe = xe;
 }
 
-bool SahaSolver::calcCore2(double T, double V, double &xe, double &vFree)
+void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double vEps)
 {
 
-    double xeOld = xe;
-    double vFreeOld = vFree;
+    double xe = result.xe;
+    double vFree = result.vFree;
 
     double dxe;
     double vError;
-
-    //int it = 0;
 
     for(int i = 0; i < 10; i++)
     {
@@ -97,25 +97,19 @@ bool SahaSolver::calcCore2(double T, double V, double &xe, double &vFree)
         formX(T, V, vFree, xe);
         dxe = ffV(xe,T,V,vFree);
 
-        vError = fabs((vFree + vion() - V) / V);
+        vError = fabs((vFree + vion()) / V - 1);
 
-        if(fabs(vError) > 1e-1) break;
+        if(vError > 1e-1) break;
 
         xe = xe + dxe;
 
-        //it++;
-        if((log(fabs(xe+dxe)) - log(fabs(xe)) < 1e-7) && (vError < 1e-4))
-        {
-            //printf("<%d>",it);
-            return true;
-        }
+        if((log(fabs(xe+dxe)) - log(fabs(xe)) < 1e-7) && (vError < vEps)) break;
     }
 
-    //printf("<%d>",it);
+    result.xe = xe;
+    result.vFree = vFree;
+    result.vError = vError;
 
-    xe = xeOld;
-    vFree = vFreeOld;
-    return false;
 }
 
 double SahaSolver::ff(double xe, double T, double V)
@@ -157,11 +151,23 @@ double SahaSolver::vFun(double xe, double T, double V, double vFree)
 
 SahaPoint SahaSolver::Calculate_TVae(double T, double V)
 {
+    const double thresholdEps = 1e-4;
     double xe, vFree;
+    calcCoreResult res1, res2;
 
-    if(!calcCore1(T, V, xe, vFree))
+    calcCore1(T, V, res1);
+    xe = res1.xe;
+    vFree = res1.vFree;
+
+    if(res1.vError > thresholdEps)
     {
-        calcCore2(T, V, xe, vFree);
+        res2 = res1;
+        calcCore2(T, V, res2, thresholdEps);
+        if(res2.vError < res1.vError)
+        {
+            xe = res2.xe;
+            vFree = res2.vFree;
+        }
     }
 
     SahaPoint result;
