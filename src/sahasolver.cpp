@@ -88,10 +88,16 @@ void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double vE
     double vFree = result.vFree;
 
     double dxe;
-    double vError;
+    double vError, vErrorOld;
+    double vFreeOld, xeOld;
+
+    vError = 1;
 
     for(int i = 0; i < 10; i++)
     {
+        vFreeOld = vFree;
+        vErrorOld = vError;
+
         vFree = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-14, T, V);
 
         formX(T, V, vFree, xe);
@@ -101,9 +107,21 @@ void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double vE
 
         if(vError > 1e-1) break;
 
-        xe = xe + dxe;
+        if((log(fabs(xe+dxe)) - log(fabs(xe)) < 1e-7))
+        {
+            if(vError > vErrorOld)
+            {
+                vFree = vFreeOld;
+                vError = vErrorOld;
+                xe = xeOld;
+                break;
+            }
 
-        if((log(fabs(xe+dxe)) - log(fabs(xe)) < 1e-7) && (vError < vEps)) break;
+            if(vError < vEps) break;
+        }
+
+        xeOld = xe;
+        xe = xe + dxe;
     }
 
     result.xe = xe;
@@ -169,6 +187,8 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
             vFree = res2.vFree;
         }
     }
+
+    formX(T, V, vFree, xe);
 
     SahaPoint result;
     double E = e(T,vFree, xe);
