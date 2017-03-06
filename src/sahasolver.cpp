@@ -98,7 +98,7 @@ void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double vE
         vFreeOld = vFree;
         vErrorOld = vError;
 
-        vFree = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-14, T, V);
+        vFree = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-16, T, V);
 
         formX(T, V, vFree, xe);
         dxe = ffV(xe,T,V,vFree);
@@ -110,7 +110,9 @@ void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double vE
         xeOld = xe;
         xe = xe + dxe;
 
-        if((log(fabs(xe-dxe)) - log(fabs(xe)) < 1e-7))
+        //printf("<xe = %g vfree = %g vError = %g>\n",xe,vFree,vError);
+
+        if(fabs(log(fabs(xe-dxe)) - log(fabs(xe))) < 1e-7)
         {
             if(vError > vErrorOld)
             {
@@ -120,7 +122,10 @@ void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double vE
                 break;
             }
 
-            if(vError < vEps) break;
+            if(vError < vEps)
+            {
+                break;
+            }
         }
 
     }
