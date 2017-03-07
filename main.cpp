@@ -167,7 +167,7 @@ int main()
         //vtest(-3, 6.01, 0.05, -1.51, 4.6, 0.05);
         //testSahaLeft();
         //CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
-        calculator(29, 0.6, 1.57, 1.62, 0.001, -1.51, 0.5, 0.001, "saha_29ss.m");
+        calculator(29, 0.6, -3, 6.01, 0.01, -5.51, 4.6, 0.01, "saha_29ss.m");
 
         /*saha::Point ppp;
 		ppp = saha::Calculate(26, 1.5, 2);
