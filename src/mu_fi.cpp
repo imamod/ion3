@@ -2,6 +2,9 @@
 #include <math.h>
 #include <cstdio>
 #include <algorithm>
+
+#include <cmath>
+
 //Вычисление функций Ферми-Дирака и химического потенциала
 //Формулы взяты из диссертации Кузьминой стр.41,52-55
 //и препринта "Ионизационное равновесие с учетом вырождения"
@@ -79,9 +82,11 @@ double ComKsi2(double Y) //Переработанная функция из ди
 //Обратная функция к функции Ферми-Дирака I05.
 double invI05(double z)
 {
-	double y=sqrt(1.5*z);
-	if(y<3.02) return ComKsi1(y);
-	else return ComKsi2(y);
+    double y=sqrt(1.5*z), result;
+    if(y<3.02) result = ComKsi1(y);
+    else result = ComKsi2(y);
+
+    return result;
 }
 
 //Ветвь при малых значениях аргумента
@@ -130,5 +135,6 @@ double I15mu_d_t(double t,double V,double xe)
 //xe - степень ионизации
 double mu(double t,double V,double xe)
 {
-	return invI05(M_PI*M_PI*xe / (sqrt(2.0)*pow(t, 1.5)*V)) * t;
+    double r = invI05(M_PI*M_PI*xe / (sqrt(2.0)*pow(t, 1.5)*V)) * t;
+    return r;
 }

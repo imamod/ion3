@@ -105,7 +105,7 @@ void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double ep
 
     Fcurrent = ffvFree(xe, T, V, vFree);
 
-    if(fabs(log(fabs(1 - Fcurrent / xe))) < eps)
+    if((fabs(log(fabs(1 - Fcurrent / xe))) < eps) || (Fold == Fcurrent))
     {
         result.xe = xe;
         result.vFree = vFree;
@@ -114,24 +114,35 @@ void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double ep
     }
 
     double xeOld2, Fold2;
-    for(int i = 0; i < 10; i++)
+    int i;
+    for(i = 0; i < 10; i++)
     {
         xeOld2 = xe;Fold2 = Fcurrent;
         xe = xe - (xeOld - xe) / (Fold - Fcurrent) * Fcurrent;
 
-        if (!isfinite(xe))
+        if (!isfinite(xe) || (xe < 0) || (xe > _element.Z))
         {
-            /*char message[256];
-            sprintf(message, "xe=%g Fold = %g Fcurrent = %g\n",xe, Fold, Fcurrent);
-            error("Core2 invalid xe", message, T, V);*/
             xe = xeOld2 + Fcurrent;
         }
 
+        double vFreeOld = vFree;
         Fcurrent = ffvFree(xe, T, V, vFree);
+
+        if(fabs(Fcurrent) > fabs(Fold))
+        {
+            xe = xeOld2;
+            vFree = vFreeOld;
+            break;
+        }
+
         Fold = Fold2;
         xeOld = xeOld2;
-        if(fabs(log(fabs(1 - Fcurrent / xe))) < eps) break;
+
+        if(Fold == Fcurrent) break;
+        if((fabs(log(fabs(1 - xeOld / xe))) < eps) || (fabs(log(fabs((Fold - Fcurrent) / xe))) < eps)) break;
     }
+
+    //printf("<%d>",i);
 
     result.xe = xe;
     result.vFree = vFree;
@@ -178,7 +189,8 @@ double SahaSolver::ffV(double xe, double T, double V, double vFree)
 double SahaSolver::vFun(double xe, double T, double V, double vFree)
 {
     formX(T, V, vFree, xe);
-    return (vFree+vion()) / V - 1;
+    double r = vFree+vion();
+    return r / V - 1;
 }
 
 SahaPoint SahaSolver::Calculate_TVae(double T, double V)
