@@ -44,10 +44,11 @@ private:
 
     double findroot(double logA, double logB, const std::function<double(double)> &F, double eps, double T, double V);
     void calcCore1(double T, double V, calcCoreResult &result);
-    void calcCore2(double T, double V, calcCoreResult &result, double vEps);
+    void calcCore2(double T, double V, calcCoreResult &result, double eps);
 	void error(const std::string & errorType, const std::string & message, double T, double V);
     void formH0(double mu, double P, double T, double &maxH0);
     double ff(double xe, double T, double V);
+    double ffvFree(double xe, double T, double V, double &vFree);
     double ffV(double xe, double T, double V, double vFree);
     double vFun(double xe, double T, double V, double vFree);
     double Vfree(double V, double xe);

@@ -81,59 +81,67 @@ void SahaSolver::calcCore1(double T, double V, calcCoreResult &result)
     result.xe = xe;
 }
 
-void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double vEps)
+void SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps)
 {
-
+    double xeOld, Fold;
     double xe = result.xe;
     double vFree = result.vFree;
 
-    double dxe;
-    double vError, vErrorOld;
-    double vFreeOld, xeOld;
+    double Fcurrent = ffvFree(xe, T, V, vFree);
+    double vError = fabs(vFun(xe, T, V, vFree));
+    if(vError > 1e-1) return;
 
-    vError = 1;
+    xeOld = xe;
+    Fold = Fcurrent;
+    xe = xe + Fcurrent;
 
+    if(fabs(log(fabs(1 - Fcurrent / xe))) < eps)
+    {
+        result.xe = xe;
+        result.vFree = vFree;
+        result.vError = fabs(vFun(xeOld, T, V, vFree));
+        return;
+    }
+
+    Fcurrent = ffvFree(xe, T, V, vFree);
+
+    if(fabs(log(fabs(1 - Fcurrent / xe))) < eps)
+    {
+        result.xe = xe;
+        result.vFree = vFree;
+        result.vError = fabs(vFun(xe, T, V, vFree));
+        return;
+    }
+
+    double xeOld2, Fold2;
     for(int i = 0; i < 10; i++)
     {
-        vFreeOld = vFree;
-        vErrorOld = vError;
+        xeOld2 = xe;Fold2 = Fcurrent;
+        xe = xe - (xeOld - xe) / (Fold - Fcurrent) * Fcurrent;
 
-        vFree = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-16, T, V);
-
-        formX(T, V, vFree, xe);
-        dxe = ffV(xe,T,V,vFree);
-
-        vError = fabs((vFree + vion()) / V - 1);
-
-        if(vError > 1e-1) break;
-
-        xeOld = xe;
-        xe = xe + dxe;
-
-        //printf("<xe = %g vfree = %g vError = %g>\n",xe,vFree,vError);
-
-        if(fabs(log(fabs(xe-dxe)) - log(fabs(xe))) < 1e-7)
+        if (!isfinite(xe))
         {
-            if(vError > vErrorOld)
-            {
-                vFree = vFreeOld;
-                vError = vErrorOld;
-                xe = xeOld;
-                break;
-            }
-
-            if(vError < vEps)
-            {
-                break;
-            }
+            /*char message[256];
+            sprintf(message, "xe=%g Fold = %g Fcurrent = %g\n",xe, Fold, Fcurrent);
+            error("Core2 invalid xe", message, T, V);*/
+            xe = xeOld2 + Fcurrent;
         }
 
+        Fcurrent = ffvFree(xe, T, V, vFree);
+        Fold = Fold2;
+        xeOld = xeOld2;
+        if(fabs(log(fabs(1 - Fcurrent / xe))) < eps) break;
     }
 
     result.xe = xe;
     result.vFree = vFree;
-    result.vError = vError;
+    result.vError = fabs(vFun(xe, T, V, vFree));
+}
 
+double SahaSolver::ffvFree(double xe, double T, double V, double &vFree)
+{
+    vFree = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-16, T, V);
+    return ffV(xe,T,V,vFree);
 }
 
 double SahaSolver::ff(double xe, double T, double V)
@@ -187,7 +195,7 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     if(res1.vError > thresholdEps)
     {
         res2 = res1;
-        calcCore2(T, V, res2, thresholdEps);
+        calcCore2(T, V, res2, 1e-12);
         if(res2.vError < res1.vError)
         {
             xe = res2.xe;
