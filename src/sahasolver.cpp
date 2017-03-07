@@ -207,7 +207,7 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     if(res1.vError > thresholdEps)
     {
         res2 = res1;
-        calcCore2(T, V, res2, 1e-12);
+        calcCore2(T, V, res2, 1e-7);
         if(res2.vError < res1.vError)
         {
             xe = res2.xe;
