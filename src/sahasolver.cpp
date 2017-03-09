@@ -101,7 +101,7 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
     {
         result.xe = xe;
         result.vFree = vFree;
-        result.vError = fabs(vFun(xeOld, T, V, vFree));
+        result.vError = vError;//fabs(vFun(xeOld, T, V, vFree));
         return 1;
     }
 
@@ -117,7 +117,7 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
 
     double xeOld2, Fold2;
     int iteration;
-    for(iteration = 0; iteration < 10; iteration++)
+    for(iteration = 0; iteration < 8; iteration++)
     {
         xeOld2 = xe;Fold2 = Fcurrent;
         xe = xe - (xeOld - xe) / (Fold - Fcurrent) * Fcurrent;
