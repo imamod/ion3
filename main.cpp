@@ -77,6 +77,8 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
         lgRho.push_back(roConst - lgV);
     }
 
+    int auxIt = 0, N = 0;
+
     for (double lgT = lgTMax; lgT > lgTMin; lgT -= lgTStep)
     {
         std::cout << "[" << lgT << "]";fflush(stdout);
@@ -87,10 +89,11 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
         for (double lgV = lgVMin; lgV < lgVMax; lgV += lgVStep)
         {
             SahaPoint res = solver.Calculate_lgTeV_lgVae(lgT,lgV);
-
-            //!!!
-            //printf("lgV = %g vError = %g xe = %g\n",log10(res.V), res.vError,res.Xe);
-            //
+            if(res.auxIt > 0)
+            {
+                auxIt += res.auxIt;
+                N++;
+            }
 
             ionizationLine.push_back(res.Xe);
             pLine.push_back(res.P);
@@ -114,6 +117,8 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
     outputTable(f, "P_Saha", pTable);
     outputTable(f, "E_Saha", eTable);
     outputTable(f, "vError", vTable);
+
+    printf("\nauxIterations/point = %g\n",auxIt / double(N));
 }
 
 void testSahaLeft()
@@ -166,8 +171,8 @@ int main()
         //testSahaLeft();
         //vtest(-3, 6.01, 0.05, -1.51, 4.6, 0.05);
         //testSahaLeft();
-        //CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
-        calculator(29, 0.6, -3, 6.01, 0.01, -5.51, 4.6, 0.01, "saha_29t.m");
+        CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
+        //calculator(29, 0.6, -3, 6.01, 0.1, -5.51, 4.6, 0.1, "saha_29t.m");
 
         /*saha::Point ppp;
 		ppp = saha::Calculate(26, 1.5, 2);
