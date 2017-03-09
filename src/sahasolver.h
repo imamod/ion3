@@ -43,6 +43,7 @@ private:
         double vError;
     };
 
+    double xroot(double x1, double y1, double x2, double y2,double x3, double y3);
     double findroot(double logA, double logB, const std::function<double(double)> &F, double eps, double T, double V);
     int calcCore1(double T, double V, calcCoreResult &result);
     int calcCore2(double T, double V, calcCoreResult &result, double eps);

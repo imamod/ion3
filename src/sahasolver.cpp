@@ -14,14 +14,28 @@ SahaSolver::SahaSolver(const TElement &element):_element(element)
     _H0.resize(element.Z+1);
 }
 
+double SahaSolver::xroot(double x1, double y1, double x2, double y2,double x3, double y3)
+{
+    double a=((y3-y2)/(x3-x2)-(y2-y1)/(x2-x1))/(x3-x1);
+    double b=a*(x3-x2)+(y3-y2)/(x3-x2);
+    double c=y3;
+    double d = b*b-4*a*c;
+    double r1 = (-b + sqrt(d))/(2*a);
+    double r2 = (-b - sqrt(d))/(2*a);
+    if(fabs(r1)<fabs(r2)) return r1+x3;
+    else return r2+x3;
+}
+
+
 double SahaSolver::findroot(double logA, double logB, const std::function<double (double)> &F, double eps, double T, double V)
 {
-    double a = logA, b = logB, c;
+    double a = logA, b = logB, c, cnew;
     double fa, fb, fc;
     double root = 0;
 
     int cc = 0;
 
+    cnew = b + 1;
     fa = F(exp(a));
     fb = F(exp(b));
     if(((fa >= 0) && (fb >= 0)) || ((fa <= 0) && (fb <= 0)))
@@ -33,8 +47,20 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
     {
         do
         {
-            c = 0.5*(a + b);
+            if((cnew > a) && (cnew < b))
+            {
+                c = cnew;
+                //printf("*");
+            }
+            else
+            {
+                c = 0.5*(a + b);
+            }
+
             fc = F(exp(c));
+
+            if(cc < 10) cnew = xroot(a,fa,b,fb,c,fc);
+
             if (((fa <= 0) && (fc >= 0)) || ((fa >= 0) && (fc <= 0)))
             {
                 b = c; fb = fc;
@@ -52,12 +78,18 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
             }
             cc++;
         }
-        while ((b - a > eps) && (cc < 60));
+        while ((b - a > eps) && (cc < 60) && (fabs(fa) > eps) && (fabs(fb) > eps));
         root = exp(0.5*(a + b));
     }
 
+    //printf("<%d>",cc);
+
+    double Froot = F(root);
+    if(fabs(Froot) > fa) {root = exp(a);Froot = fa;};
+    if(fabs(Froot) > fb) {root = exp(b);Froot = fb;};
+
     double root2 = exp(a) - (exp(b) - exp(a))/(fb-fa)*fa;
-    if(fabs(F(root2)) < fabs(F(root)))
+    if(fabs(F(root2)) < fabs(Froot))
     {
         return root2;
     }
@@ -154,7 +186,7 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
 
 double SahaSolver::ffvFree(double xe, double T, double V, double &vFree)
 {
-    vFree = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-16, T, V);
+    vFree = findroot(log(V) - 30, log(V), [&](double vfree) {return vFun(xe, T, V, vfree);}, 1e-12, T, V);
     return ffV(xe,T,V,vFree);
 }
 
