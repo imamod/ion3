@@ -22,8 +22,14 @@ double SahaSolver::xroot(double x1, double y1, double x2, double y2,double x3, d
     double d = b*b-4*a*c;
     double r1 = (-b + sqrt(d))/(2*a);
     double r2 = (-b - sqrt(d))/(2*a);
+
     if(fabs(r1)<fabs(r2)) return r1+x3;
     else return r2+x3;
+}
+
+double SahaSolver::chord(double x1, double y1, double x2, double y2)
+{
+    return x1 - (x2-x1) / (y2-y1) * y1;
 }
 
 
@@ -33,7 +39,7 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
     double fa, fb, fc;
     double root = 0;
 
-    int cc = 0;
+    int cc = 0, cc2 = 0;
 
     cnew = b + 1;
     fa = F(exp(a));
@@ -50,7 +56,7 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
             if((cnew > a) && (cnew < b))
             {
                 c = cnew;
-                //printf("*");
+                cc2++;
             }
             else
             {
@@ -59,7 +65,7 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
 
             fc = F(exp(c));
 
-            if(cc < 10) cnew = xroot(a,fa,b,fb,c,fc);
+            if(cc2 < 16) cnew = xroot(a,fa,b,fb,c,fc);
 
             if (((fa <= 0) && (fc >= 0)) || ((fa >= 0) && (fc <= 0)))
             {
@@ -76,6 +82,7 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
                 error("find root error", message, T, V);
 
             }
+
             cc++;
         }
         while ((b - a > eps) && (cc < 60) && (fabs(fa) > eps) && (fabs(fb) > eps));
@@ -83,12 +90,12 @@ double SahaSolver::findroot(double logA, double logB, const std::function<double
     }
 
     //printf("<%d>",cc);
-
     double Froot = F(root);
+
     if(fabs(Froot) > fa) {root = exp(a);Froot = fa;};
     if(fabs(Froot) > fb) {root = exp(b);Froot = fb;};
 
-    double root2 = exp(a) - (exp(b) - exp(a))/(fb-fa)*fa;
+    double root2 = exp(chord(a,fa,b,fb));
     if(fabs(F(root2)) < fabs(Froot))
     {
         return root2;
@@ -133,7 +140,7 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
     {
         result.xe = xe;
         result.vFree = vFree;
-        result.vError = vError;//fabs(vFun(xeOld, T, V, vFree));
+        result.vError = vError;
         return 1;
     }
 
@@ -152,8 +159,7 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
     for(iteration = 0; iteration < 8; iteration++)
     {
         xeOld2 = xe;Fold2 = Fcurrent;
-        xe = xe - (xeOld - xe) / (Fold - Fcurrent) * Fcurrent;
-        //xe = xeOld2 + Fcurrent;
+        xe = chord(xeOld, Fold, xe, Fcurrent);
 
         if (!isfinite(xe) || (xe < 0) || (xe > _element.Z))
         {
