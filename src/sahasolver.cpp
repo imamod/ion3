@@ -125,6 +125,7 @@ int SahaSolver::calcCore1(double T, double V, calcCoreResult &result)
 int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps)
 {
     double xeOld, Fold;
+    double xeOld2, Fold2;
     double xe = result.xe;
     double vFree = result.vFree;
 
@@ -136,28 +137,15 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
     Fold = Fcurrent;
     xe = xe + Fcurrent;
 
-    if(fabs(log(fabs(1 - Fcurrent / xe))) < eps)
+    int iteration = 1;
+    for(int s = 0; s < 1; s++)
     {
-        result.xe = xe;
-        result.vFree = vFree;
-        result.vError = vError;
-        return 1;
-    }
+        if(fabs(log(fabs(1 - Fcurrent / xe))) < eps) break;
 
-    Fcurrent = ffvFree(xe, T, V, vFree);
+        Fcurrent = ffvFree(xe, T, V, vFree);iteration++;
 
-    if((fabs(log(fabs(1 - Fcurrent / xe))) < eps) || (Fold == Fcurrent))
-    {
-        result.xe = xe;
-        result.vFree = vFree;
-        result.vError = fabs(vFun(xe, T, V, vFree));
-        return 2;
-    }
+        if((fabs(log(fabs(1 - Fcurrent / xe))) < eps) || (Fold == Fcurrent)) break;
 
-    double xeOld2, Fold2;
-    int iteration;
-    for(iteration = 0; iteration < 8; iteration++)
-    {
         xeOld2 = xe;Fold2 = Fcurrent;
         xe = chord(xeOld, Fold, xe, Fcurrent);
 
@@ -166,28 +154,51 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
             xe = xeOld2 + Fcurrent;
         }
 
-        double vFreeOld = vFree;
-        Fcurrent = ffvFree(xe, T, V, vFree);
+        Fcurrent = ffvFree(xe, T, V, vFree);iteration++;
 
-        if(fabs(Fcurrent) > fabs(Fold))
-        {
-            xe = xeOld2;
-            vFree = vFreeOld;
-            break;
-        }
+        //xe,Fcurrent - текущая итерация
+        //xeOld2, Fold2 - предыдущая итерация
+        //xeOld, Fold - пред-пред итерация
 
         Fold = Fold2;
         xeOld = xeOld2;
 
         if(Fold == Fcurrent) break;
         if((fabs(log(fabs(1 - xeOld / xe))) < eps) || (fabs(log(fabs((Fold - Fcurrent) / xe))) < eps)) break;
+
+        for(; iteration < 11;)
+        {
+            xeOld2 = xe;Fold2 = Fcurrent;
+            xe = chord(xeOld, Fold, xe, Fcurrent);
+
+            if (!isfinite(xe) || (xe < 0) || (xe > _element.Z))
+            {
+                xe = xeOld2 + Fcurrent;
+            }
+
+            double vFreeOld = vFree;
+            Fcurrent = ffvFree(xe, T, V, vFree);iteration++;
+
+            if(fabs(Fcurrent) > fabs(Fold))
+            {
+                xe = xeOld2;
+                vFree = vFreeOld;
+                break;
+            }
+
+            Fold = Fold2;
+            xeOld = xeOld2;
+
+            if(Fold == Fcurrent) break;
+            if((fabs(log(fabs(1 - xeOld / xe))) < eps) || (fabs(log(fabs((Fold - Fcurrent) / xe))) < eps)) break;
+        }
     }
 
     result.xe = xe;
     result.vFree = vFree;
     result.vError = fabs(vFun(xe, T, V, vFree));
 
-    return iteration + 3;
+    return iteration;
 }
 
 double SahaSolver::ffvFree(double xe, double T, double V, double &vFree)
