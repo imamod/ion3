@@ -140,7 +140,11 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
     int iteration = 1;
     for(int s = 0; s < 1; s++)
     {
-        if(fabs(log(fabs(1 - Fcurrent / xe))) < eps) break;
+        if(fabs(log(fabs(1 - Fcurrent / xe))) < eps)
+        {
+            xe = xeOld2;
+            break;
+        }
 
         Fcurrent = ffvFree(xe, T, V, vFree);iteration++;
         xeOld = xe;Fold = Fcurrent;
