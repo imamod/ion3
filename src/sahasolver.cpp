@@ -143,12 +143,12 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
         if(fabs(log(fabs(1 - Fcurrent / xe))) < eps) break;
 
         Fcurrent = ffvFree(xe, T, V, vFree);iteration++;
-        Fold = Fcurrent;xeOld = xe;
+        xeOld = xe;Fold = Fcurrent;
 
-        if((fabs(log(fabs(1 - Fcurrent / xe))) < eps) || (Fold == Fcurrent)) break;
+        if((fabs(log(fabs(1 - Fcurrent / xe))) < eps) || (Fold2 == Fold)) break;
 
         double xeMem = xe;
-        xe = chord(xeOld, Fold, xe, Fcurrent);
+        xe = chord(xeOld2, Fold2, xe, Fcurrent);
 
         if (!isfinite(xe) || (xe < 0) || (xe > _element.Z))
         {
