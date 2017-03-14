@@ -77,6 +77,8 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
         lgRho.push_back(roConst - lgV);
     }
 
+    int auxIt = 0, N = 0;
+
     for (double lgT = lgTMax; lgT > lgTMin; lgT -= lgTStep)
     {
         std::cout << "[" << lgT << "]";fflush(stdout);
@@ -87,10 +89,11 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
         for (double lgV = lgVMin; lgV < lgVMax; lgV += lgVStep)
         {
             SahaPoint res = solver.Calculate_lgTeV_lgVae(lgT,lgV);
-
-            //!!!
-            //printf("lgV = %g vError = %g xe = %g\n",log10(res.V), res.vError,res.Xe);
-            //
+            if(res.auxIt > 0)
+            {
+                auxIt += res.auxIt;
+                N++;
+            }
 
             ionizationLine.push_back(res.Xe);
             pLine.push_back(res.P);
@@ -114,6 +117,8 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
     outputTable(f, "P_Saha", pTable);
     outputTable(f, "E_Saha", eTable);
     outputTable(f, "vError", vTable);
+
+    printf("\nauxIterations/point = %g\n",auxIt / double(N));
 }
 
 void testSahaLeft()
@@ -136,27 +141,10 @@ void vtest(double lgVMin, double lgVMax, double lgVStep, double lgTMin, double l
 {
     const TElement elem(29, 0.6); //Расчет для меди c Z=29
     SahaSolver solver(elem);
-
-    /*for (double lgT = lgTMax; lgT > lgTMin; lgT -= lgTStep)
-    {
-        for (double lgV = lgVMin; lgV < lgVMax; lgV += lgVStep)
-        {
-            SahaPoint res = solver.Calculate_lgTeV_lgVae(lgT, lgV);
-            if(fabs(res.vError) > 0.1)
-            {
-                printf("lgT = %g lgV = %g vError = %g\n",lgT,lgV,res.vError);
-            }
-        }
-    }*/
     SahaPoint res = solver.Calculate_lgTeV_lgVae(1.2, 1.99);
     printf("lgV = %g vError = %g xe = %g\n",log10(res.V), res.vError,res.Xe);
-    SahaPoint res1 = solver.Calculate_lgTeV_lgVae(1.2, 1.9905);
-    printf("lgV = %g vError = %g xe = %g\n",log10(res1.V), res1.vError,res1.Xe);
-    SahaPoint res2 = solver.Calculate_lgTeV_lgVae(1.2, 1.991);
-    printf("lgV = %g vError = %g xe = %g\n",log10(res2.V), res2.vError,res2.Xe);
-    //solver.calcCore2(3.65,-1,29);
 
-    solver.vgraph(1,2, res.Xe);
+    //solver.vgraph(1,2, res.Xe);
 }
 
 int main()
@@ -167,7 +155,9 @@ int main()
         //vtest(-3, 6.01, 0.05, -1.51, 4.6, 0.05);
         //testSahaLeft();
         //CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
-        calculator(29, 0.6, -3, 6.01, 0.01, -5.51, 4.6, 0.01, "saha_29ss.m");
+        calculator(29, 0.6, -3, 6.01, 0.01, -5.51, 4.6, 0.01, "saha_29t.m");
+        //calculator(29, 0.6, -0.1, 0, 0.0005, 2, 2.2, 0.0005, "saha_29t.m");
+
 
         /*saha::Point ppp;
 		ppp = saha::Calculate(26, 1.5, 2);

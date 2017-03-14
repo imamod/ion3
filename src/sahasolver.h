@@ -20,6 +20,7 @@ struct SahaPoint
 
    double K;  // объёмная доля элекронных остовов в электронном газе, б/р
    double vError;
+   int auxIt;
 };
 
 class SahaSolver
@@ -42,12 +43,15 @@ private:
         double vError;
     };
 
+    double xroot(double x1, double y1, double x2, double y2,double x3, double y3);
+    double chord(double x1, double y1, double x2, double y2);
     double findroot(double logA, double logB, const std::function<double(double)> &F, double eps, double T, double V);
-    void calcCore1(double T, double V, calcCoreResult &result);
-    void calcCore2(double T, double V, calcCoreResult &result, double vEps);
+    int calcCore1(double T, double V, calcCoreResult &result);
+    int calcCore2(double T, double V, calcCoreResult &result, double eps);
 	void error(const std::string & errorType, const std::string & message, double T, double V);
     void formH0(double mu, double P, double T, double &maxH0);
     double ff(double xe, double T, double V);
+    double ffvFree(double xe, double T, double V, double &vFree);
     double ffV(double xe, double T, double V, double vFree);
     double vFun(double xe, double T, double V, double vFree);
     double Vfree(double V, double xe);
