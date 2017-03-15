@@ -4,8 +4,7 @@
 #include "saha.h"
 #include <math.h>
 
-
-
+#include <algorithm>
 #include <cstdio>
 #include <fstream>
 #include <iostream>
