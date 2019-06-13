@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <stdexcept>
 
-SahaSolver::SahaSolver(const TElement &element):_element(element)
+SahaSolver::SahaSolver(const TElement &element, double teta):_element(element), _teta(teta)
 {
     _x.resize(element.Z+1);
     _H0.resize(element.Z+1);
@@ -133,7 +133,10 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
 
     double Fcurrent = ffvFree(xe, T, V, vFree);
     double vError = fabs(vFun(xe, T, V, vFree));
-    if(vError > 1e-1) return 1;
+    if(vError > 1e-1)
+    {
+        return 1;
+    }
 
     xeOld2 = xe;
     Fold2 = Fcurrent;
@@ -190,7 +193,10 @@ int SahaSolver::calcCore2(double T, double V, calcCoreResult &result, double eps
                 break;
             }
 
-            if(log(fabs(1 - xeOld / xe)) < logEps) break;
+            if(log(fabs(1 - xeOld / xe)) < logEps)
+            {
+                break;
+            }
         }
     }
 
@@ -211,7 +217,7 @@ double SahaSolver::ff(double xe, double T, double V)
 {
     double vFree = Vfree(V, xe);
 
-    if (vFree < 0)
+    if (vFree <= 0)
     {
         return std::numeric_limits<double>::max();
     }
@@ -283,9 +289,13 @@ SahaPoint SahaSolver::Calculate_TVae(double T, double V)
     result.Xe = xe;
     result.M = mu(T, vFree, xe);
     result.F = E - T * S;
-    result.K = 1 - vFree / V;
+    result.vFactor = vFree / V;//V/vFree - 1;
+    result.IMu = I05mu_d_t(T,vFree,xe);
+    result.K = pow(result.IMu,1.5);
     result.vError = vError;
     result.auxIt = auxIteration;
+    result.zd = getZd(xe);
+    result.x = _x;
 
     return result;
 }
@@ -358,6 +368,17 @@ void SahaSolver::formX(double T, double V, double vFree, double xe)
     }
 }
 
+double SahaSolver::getZd(double xe)
+{
+    double z2 = xe;
+    for(int i = 1; i <= _element.Z; i++)
+    {
+        z2 += i*i*_x[i];
+    }
+
+    return sqrt(std::max(z2, 0.0));
+}
+
 double SahaSolver::Vfree(double V, double xe)
 {
     unsigned int i = floor(xe); // _xe - это концентрация здесь? что показывает i?
@@ -390,6 +411,12 @@ double SahaSolver::Vion(double rCoeff)
 	for (int i = 0; i < _element.Z; i++)
 	{
 		double vi = 4 / 3.0 * M_PI * pow(rCoeff * (i + 1) / _element.fi[i], 3.0);
+
+        if(i == 0)
+        {
+            vi = _element.A * eRo / _element.ro;
+        }
+
 		V += _x[i] * vi;
 	}
     return V;
@@ -460,7 +487,7 @@ double SahaSolver::e(double T, double vFree, double xe)
     {
         Efi += _element.cumFi[i-1] * _x[i];
     }
-    return 1.5*T + Ee  + Efi;
+    return 3*T*(1-0.5*T/(T+_teta)) + Ee  + Efi;
 }
 
 void SahaSolver::GetX(std::vector<double> &x)

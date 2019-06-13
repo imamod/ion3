@@ -7,9 +7,10 @@ cmake_minimum_required(VERSION 2.8)
 project(ion3)
 
 # set project options =========================================================
-if(NOT DEFINED BUILD_TYPE)      # <- 1st option
-#  set(BUILD_TYPE DEBUG)
-  set(BUILD_TYPE RELEASE)
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    set(BUILD_TYPE DEBUG)
+else()
+    set(BUILD_TYPE RELEASE)
 endif()
 
 # clear main building variables ===============================================
@@ -53,6 +54,7 @@ target_link_libraries(${TARGET_NAME} ${LIBRARY_LIST})
 
 # setup compilation definition ================================================
 target_compile_definitions(${TARGET_NAME} PUBLIC
+    NIST_IONIZATION_POTENTIALS
 )
 
 # setup compilation options ===================================================

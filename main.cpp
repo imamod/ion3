@@ -4,7 +4,6 @@
 #include "saha.h"
 #include <math.h>
 
-#include <algorithm>
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -40,7 +39,7 @@ void CrashTest(double rCoeff, double lgVMin, double lgVMax, double lgVStep, doub
 		const TElement elem(Z, rCoeff);
 		SahaSolver solver(elem);
 
-        printf("[%d] ",Z);fflush(stdout);
+		printf("[%d] ",Z);
 
 		for (double lgT = lgTMax; lgT > lgTMin; lgT -= lgTStep)
 		{
@@ -65,8 +64,6 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
     std::vector<std::vector<double>> ionizationTable;
     std::vector<std::vector<double>> pTable;
     std::vector<std::vector<double>> eTable;
-    std::vector<std::vector<double>> vTable;
-    std::vector<std::vector<double>> MuTable;
 
     for (double lgT = lgTMax; lgT > lgTMin; lgT -= lgTStep) lgTPhys.push_back(lgT);
 
@@ -77,36 +74,22 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
         lgRho.push_back(roConst - lgV);
     }
 
-    int auxIt = 0, N = 0;
-
     for (double lgT = lgTMax; lgT > lgTMin; lgT -= lgTStep)
     {
-        std::cout << "[" << lgT << "]";fflush(stdout);
+        std::cout << "[" << lgT << "]";
         std::vector<double> ionizationLine;
         std::vector<double> pLine;
         std::vector<double> eLine;
-        std::vector<double> vLine;
-        std::vector<double> MuLine;
         for (double lgV = lgVMin; lgV < lgVMax; lgV += lgVStep)
         {
             SahaPoint res = solver.Calculate_lgTeV_lgVae(lgT,lgV);
-            if(res.auxIt > 0)
-            {
-                auxIt += res.auxIt;
-                N++;
-            }
-
             ionizationLine.push_back(res.Xe);
             pLine.push_back(res.P);
-            eLine.push_back(res.E);  
-            vLine.push_back(log10(std::max(fabs(res.vError),1e-308)));
-            MuLine.push_back(res.M);
+            eLine.push_back(res.E);
         }
         ionizationTable.push_back(ionizationLine);
         pTable.push_back(pLine);
         eTable.push_back(eLine);
-        vTable.push_back(vLine);
-        MuTable.push_back(MuLine);
     }
 
     std::fstream f(filename.c_str(), std::fstream::out);
@@ -119,58 +102,15 @@ void calculator(unsigned int Z, double rCoeff, double lgVMin, double lgVMax, dou
     outputTable(f, "xe_Saha", ionizationTable);
     outputTable(f, "P_Saha", pTable);
     outputTable(f, "E_Saha", eTable);
-    outputTable(f, "Mu_Saha", MuTable);
-    outputTable(f, "vError", vTable);
-
-    printf("\nauxIterations/point = %g\n",auxIt / double(N));
-}
-
-void testSahaLeft()
-{
-    const TElement elem(29, 0.6); //Расчет для меди c Z=29
-    SahaSolver solver(elem);
-
-    SahaPoint res = solver.Calculate_lgTeV_lgVae(1, 1);
-    printf("xe = %g verr = %g\n",res.Xe,res.vError);
-
-    printf("Vector SahaLeft:");
-    std::vector<double> result;
-    solver.SahaLeft(result);
-
-    for(auto &x : result) printf("%g ",x);
-    printf("\n");
-}
-
-void vtest(double lgVMin, double lgVMax, double lgVStep, double lgTMin, double lgTMax, double lgTStep)
-{
-    const TElement elem(29, 0.6); //Расчет для меди c Z=29
-
-    printf("v = [");
-    for(auto &value : elem.v)
-    {
-        printf("%g ",value);
-    }
-    printf("];\n");
-
-    SahaSolver solver(elem);
-    SahaPoint res = solver.Calculate_lgTeV_lgVae(1.2, 1.99);
-    printf("lgV = %g vError = %g xe = %g\n",log10(res.V), res.vError,res.Xe);
-
-    //solver.vgraph(1,2, res.Xe);
 }
 
 int main()
-{
+{	
 	try
 	{
-        //testSahaLeft();
-        //vtest(-3, 6.01, 0.05, -1.51, 4.6, 0.05);
-        //testSahaLeft();
-        //CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
-
-        calculator(29, 0.6, -6, 6.01, 0.01, -1.61, 4.6, 0.01, "saha_29r.m");
-        //calculator(29, 0.6, -0.1, 0, 0.0005, 2, 2.2, 0.0005, "saha_29t.m");
-
+		//CrashTest(0.6, -3, 6.01, 0.05, -1.51, 4.6, 0.05);
+        //calculator(82, 0.6, -3, 6.01, 0.05, -5.51, 4.6, 0.05, "../../mion2/saha_Pb.m");
+        calculator(29, 0.6, 3, 3.01, 0.05, -5.51, 4.6, 0.1, "saha_Cu.m");
 
         /*saha::Point ppp;
 		ppp = saha::Calculate(26, 1.5, 2);
@@ -184,6 +124,6 @@ int main()
 	{
 		printf("\n%s", r.what());
 	}
-
+	
     return 0;
 }
